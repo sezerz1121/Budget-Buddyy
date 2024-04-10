@@ -25,7 +25,7 @@ mongoose.connect("mongodb+srv://tatsam24copywriter:bWbQN7urqvswx2bU@drivewise.zg
 });
 
 app.get("/",cors(),(req,res)=>{
-
+ res.send("hi");
 });
 app.get('/profile', authenticateToken, async (req, res) => {
   try {
