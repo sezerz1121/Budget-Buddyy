@@ -1,0 +1,927 @@
+body
+{
+    overflow: hidden;
+    padding: 0%;
+    margin: 0%;
+    height: 100vh;
+    width: 100%;
+    font-family: "Roboto", sans-serif;
+    font-style: normal;
+    background-color: white;
+}
+#root
+{
+    overflow: hidden;
+    padding: 0%;
+    margin: 0%;
+    height: 100vh;
+    width: 100%;
+}
+.Registration
+{
+    display: flex;
+    height: 100vh;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+}
+.ImageofId
+{
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 50px;
+    width: 50px;
+}
+.Screen
+{
+    width: 436px;
+    height: 800px;
+    border-radius: 32px;
+    background-color: #D8E3E7;
+}
+.Screen-parent
+{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    width: 100%;
+}
+.Title-div
+{
+   
+    font-weight: 600;
+}
+.Title-name
+{
+    display: flex;
+    color: #126E82;
+    align-items: center;
+    margin-left: 32px;
+}
+.Spent-name
+{
+    margin-top: 160px;
+    display: flex;
+    color: #51C4D3;
+    align-items: center;
+    justify-content: center;
+    font-weight: 400;
+}
+.total-price
+{
+    height: 75px;
+    margin-bottom: 181px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 64px;
+    color: red;
+}
+.Title-item
+{
+    display:  flex;
+    justify-content:space-between;
+    align-items: center;
+}
+.Spent-item
+{
+    margin-left: 25px;
+    font-size: 16px;
+    font-weight: 400;
+    color: #51C4D3;
+}
+.Spent-item-price
+{
+ margin-right: 25px;
+ font-size: 16px;
+ font-weight: 400;
+ color: #51C4D3;
+ 
+}
+.items
+{
+    width: 385px;
+    height: 200px;
+    margin-left:25px ;
+    margin-right: 25px;
+    overflow: hidden;
+}
+.items::-webkit-scrollbar {
+    display: none;
+  }
+.Fuction-button
+{
+    
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    width: 436px;
+    height: 58px;
+    border-bottom-left-radius: 32px;
+    border-bottom-right-radius: 32px;
+    
+}
+.analatic
+{
+    background-color: #132C33;
+    height: 50px;
+    width: 50px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #51C4D3;
+    font-size: 30px;
+    margin-bottom: 15px;
+}
+.analatic:hover
+{
+    background-color: #51C4D3;
+    height: 50px;
+    width: 50px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #132C33;
+    font-size: 30px;
+    margin-bottom: 15px;
+}
+.Add-item
+{
+    background-color: #132C33;
+    height: 50px;
+    width: 50px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #51C4D3;
+    font-size: 30px;
+    margin-bottom: 15px;
+}
+.Add-item:hover
+{
+    background-color: #51C4D3;
+    height: 50px;
+    width: 50px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #132C33;
+    font-size: 30px;
+    margin-bottom: 15px;
+}
+.Profile
+{
+    height: 50px;
+    width: 50px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+    
+   
+}
+.Profile-div
+{
+    height: 50px;
+    width: 50px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 15px;
+    
+   
+}
+.price
+{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 75px;
+    margin-bottom: 81px;
+    margin-top: 24px;
+}
+.Emoji_selector
+{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.Item-buttons
+{
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin-bottom: 160px;
+    margin-top: 46px;
+}
+.Profile-div-add
+{
+    height: 50px;
+    width: 50px;
+    border-radius: 50%;
+    display: flex;
+    margin-left: 313px;
+    align-items: center;
+    margin-bottom: 22px;
+}
+.cancel-button
+{
+    
+    width: 160px;
+    height: 71px;
+    background-color: #126E82;
+    color: #4AB1BF;
+    border: transparent;
+    border-radius: 15px;
+   font-size: 24px;
+}
+.cancel-button:hover
+{
+    
+    width: 160px;
+    height: 71px;
+    background-color: #4AB1BF;
+    color: #126E82;
+    border: transparent;
+    border-radius: 15px;
+   font-size: 24px;
+}
+.next-button
+{
+    
+    width: 160px;
+    height: 71px;
+    background-color: #132C33;
+    color:  #4AB1BF;
+    border: transparent;
+    border-radius: 15px;
+   font-size: 24px;
+    
+}
+.next-button:hover
+{
+    
+    width: 160px;
+    height: 71px;
+    background-color: #4AB1BF;
+    color:  #132C33;
+    border: transparent;
+    border-radius: 15px;
+   font-size: 24px;
+    
+}
+
+.Input-field
+{
+    
+    font-size: 96px;
+    width: 185px;
+    background-color: #D8E3E7;
+    border: transparent;
+    display: flex;
+    justify-content: center;
+    text-align: center;
+    border-bottom: black 1;
+}
+.Input-field:focus {
+    border: none; /* Hide border when input is focused */
+    outline: none; /* Remove focus outline */
+}
+.Text-item
+{
+    margin-top: 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+}
+.Input-field-text
+{
+    
+    
+    background-color: #D8E3E7;
+    border: transparent;
+    display: flex;
+    justify-content: center;
+    text-align: center;
+    border-bottom: black 1;
+}
+.Input-field-text:focus {
+    border: none; /* Hide border when input is focused */
+    outline: none; /* Remove focus outline */
+}
+.BudgetCard
+{
+    display: flex;
+    align-items: center;
+    width: 371px;
+    height: 88px;
+}
+.Emoji
+{
+    font-size: 42px;
+    margin-right: 39px;
+}
+.Item-info
+{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    margin-right: 150px;
+}
+.item-name
+{
+    font-size: 16px;
+    font-weight: 400;
+    margin-bottom: 3px;
+    width: 75px;
+}
+.item-date
+{
+    font-size: 16px;
+    font-weight: 400;
+}
+.Budget-price
+{
+    color: red;
+}
+.Dropdown
+{
+    position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: absolute;
+  top: 62%;
+  right: 42%;
+  height: 250px;
+  width: 300px;
+  background-color: #4AB1BF;
+  border-radius: 15px;
+  
+}
+.Profile-div
+{
+  height: 90px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #132C33;
+  font-weight: 600;
+}
+.butou
+{
+  margin-right: 25px;
+}
+.Profile-div2
+{
+  width: 100%;
+  height: 102px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #132C33;
+  font-weight: 600;
+}
+.dropbut
+{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #132C33;
+  font-weight: 600;
+  margin-left: 0px;
+  background-color: transparent;
+  border: transparent;
+  
+  font-size: 16px;
+}
+.dropbutspace
+{
+  margin-left: 15px;
+}
+
+.ProfilInfo
+{
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  width: 279px;
+}
+.Prfilepic
+{
+  height: 50px;
+  width: 50px;
+  border-radius: 50%;
+  
+}
+.Email-info
+{
+    width: 200px;
+}
+.spacediv
+{
+    width: 25px;
+}
+.total-price1
+{
+    height: 75px;
+    margin-left: 32px;
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    font-size: 64px;
+    color: red;
+}
+.Spent-div1
+{
+    display: flex;
+    justify-content: start;
+    margin-left: 32px;
+}
+.Spent-div2
+{
+    display: flex;
+    justify-content: start;
+    margin-top: 20px;
+}
+.Analitics
+{
+    width: 100%;
+    height:280px;
+    margin-left: 32px;
+}
+.Spent-name1
+{
+    
+    display: flex;
+    color: #51C4D3;
+    align-items: center;
+    justify-content: center;
+    font-weight: 400;
+}
+.Spent-name2
+{
+    
+    display: flex;
+    color: #126E82;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+}
+@media (min-width: 320px) and (max-width: 375px) {
+    body {
+        background-color: lightgreen;
+    }
+
+    .Screen {
+        height: 100%;
+        border-radius: 0%;
+    }
+    .Spent-name
+        {
+            margin-top: 100px;
+            display: flex;
+            color: #51C4D3;
+            align-items: center;
+            justify-content: center;
+            font-weight: 400;
+        }
+    .total-price
+        {
+            height: 75px;
+            margin-bottom: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 64px;
+            color: red;
+        }
+
+    .analatic,
+    .Add-item {
+        background-color: #132C33;
+        height: 50px;
+        width: 50px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: #51C4D3;
+        font-size: 30px;
+    }
+
+    .analatic:hover,
+    .Add-item:hover {
+        background-color: #51C4D3;
+        height: 50px;
+        width: 50px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: #132C33;
+        font-size: 30px;
+    }
+
+    .Profile,
+    .Profile-div {
+        height: 50px;
+        width: 50px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .Fuction-button {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        width: 436px;
+        height: 55px;
+    }
+    .Dropdown
+    {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        position: absolute;
+        top: 50%;
+        right: 10%;
+        height: 250px;
+        width: 300px;
+        background-color: #4AB1BF;
+        border-radius: 15px;
+  
+    }
+    .Spent-item
+    {
+        margin-left: 35px;
+        font-size: 16px;
+        font-weight: 400;
+        color: #51C4D3;
+    }
+    .Spent-item-price
+    {
+    margin-right: 35px;
+    font-size: 16px;
+    font-weight: 400;
+    color: #51C4D3;
+    
+    }
+    .Spent-div2
+    {
+        display: flex;
+        justify-content: start;
+        margin-top: 20px;
+    }
+    .Analitics
+    {
+        width: 100%;
+        height:150px;
+        margin-left: 32px;
+    }
+    .Spent-name1
+    {
+        
+        display: flex;
+        color: #51C4D3;
+        align-items: center;
+        justify-content: center;
+        font-weight: 400;
+    }
+    .Spent-name2
+    {
+        
+        display: flex;
+        color: #126E82;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+    }
+    .Item-buttons
+    {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        margin-bottom: 100px;
+        margin-top: 46px;
+    }
+}
+@media (min-width: 376px) and (max-width: 420px) {
+    body {
+        background-color: lightgreen;
+    }
+
+    .Screen {
+        height: 100%;
+        border-radius: 0%;
+    }
+    .Spent-name
+        {
+            margin-top: 100px;
+            display: flex;
+            color: #51C4D3;
+            align-items: center;
+            justify-content: center;
+            font-weight: 400;
+        }
+    .total-price
+        {
+            height: 75px;
+            margin-bottom: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 64px;
+            color: red;
+        }
+
+    .analatic,
+    .Add-item {
+        background-color: #132C33;
+        height: 50px;
+        width: 50px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: #51C4D3;
+        font-size: 30px;
+    }
+
+    .analatic:hover,
+    .Add-item:hover {
+        background-color: #51C4D3;
+        height: 50px;
+        width: 50px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: #132C33;
+        font-size: 30px;
+    }
+
+    .Profile,
+    .Profile-div {
+        height: 50px;
+        width: 50px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .Fuction-button {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        width: 436px;
+        height: 55px;
+    }
+    .Dropdown
+    {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        position: absolute;
+        top: 60%;
+        right: 10%;
+        height: 250px;
+        width: 300px;
+        background-color: #4AB1BF;
+        border-radius: 15px;
+  
+    }
+    .Spent-item
+    {
+        margin-left: 35px;
+        font-size: 16px;
+        font-weight: 400;
+        color: #51C4D3;
+    }
+    .Spent-item-price
+    {
+    margin-right: 35px;
+    font-size: 16px;
+    font-weight: 400;
+    color: #51C4D3;
+    
+    }
+    .Spent-div2
+    {
+        display: flex;
+        justify-content: start;
+        margin-top: 20px;
+    }
+    .Analitics
+    {
+        width: 100%;
+        height:150px;
+        margin-left: 32px;
+    }
+    .Spent-name1
+    {
+        
+        display: flex;
+        color: #51C4D3;
+        align-items: center;
+        justify-content: center;
+        font-weight: 400;
+    }
+    .Spent-name2
+    {
+        
+        display: flex;
+        color: #126E82;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+    }
+    .Item-buttons
+    {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        margin-bottom: 290px;
+        margin-top: 46px;
+    }
+    .items
+    {
+        width: 385px;
+        height: 400px;
+        margin-left:25px ;
+        margin-right: 25px;
+        overflow: hidden;
+    }
+    .items::-webkit-scrollbar {
+        display: none;
+    }
+}
+@media (min-width: 421px) and (max-width: 430px) {
+    body {
+        background-color: lightgreen;
+    }
+
+    .Screen {
+        height: 100%;
+        border-radius: 0%;
+    }
+    .Spent-name
+        {
+            margin-top: 100px;
+            display: flex;
+            color: #51C4D3;
+            align-items: center;
+            justify-content: center;
+            font-weight: 400;
+        }
+    .total-price
+        {
+            height: 75px;
+            margin-bottom: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 64px;
+            color: red;
+        }
+
+    .analatic,
+    .Add-item {
+        background-color: #132C33;
+        height: 50px;
+        width: 50px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: #51C4D3;
+        font-size: 30px;
+    }
+
+    .analatic:hover,
+    .Add-item:hover {
+        background-color: #51C4D3;
+        height: 50px;
+        width: 50px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: #132C33;
+        font-size: 30px;
+    }
+
+    .Profile,
+    .Profile-div {
+        height: 50px;
+        width: 50px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .Fuction-button {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        width: 436px;
+        height: 55px;
+    }
+    .Dropdown
+    {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        position: absolute;
+        top: 58%;
+        right: 12%;
+        height: 250px;
+        width: 300px;
+        background-color: #4AB1BF;
+        border-radius: 15px;
+  
+    }
+    .Spent-item
+    {
+        margin-left: 35px;
+        font-size: 16px;
+        font-weight: 400;
+        color: #51C4D3;
+    }
+    .Spent-item-price
+    {
+    margin-right: 35px;
+    font-size: 16px;
+    font-weight: 400;
+    color: #51C4D3;
+    
+    }
+    .Spent-div2
+    {
+        display: flex;
+        justify-content: start;
+        margin-top: 20px;
+    }
+    .Analitics
+    {
+        width: 100%;
+        height:150px;
+        margin-left: 32px;
+    }
+    .Spent-name1
+    {
+        
+        display: flex;
+        color: #51C4D3;
+        align-items: center;
+        justify-content: center;
+        font-weight: 400;
+    }
+    .Spent-name2
+    {
+        
+        display: flex;
+        color: #126E82;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+    }
+    .Item-buttons
+    {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        margin-bottom: 290px;
+        margin-top: 46px;
+    }
+    .items
+    {
+        width: 385px;
+        height: 400px;
+        margin-left:25px ;
+        margin-right: 25px;
+        overflow: hidden;
+    }
+    .items::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+
