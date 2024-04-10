@@ -96,7 +96,7 @@ function AddItem() {
     <div className='Spent-div'><p className='Spent-name'>Spent this month</p></div>
     <div className='price'> <input onChange={handle_price} className='Input-field' placeholder="0" ></input> </div>
     <div className='Emoji_selector'> 
-      {showEmojiPicker && <EmojiPicker onEmojiClick={handleEmojiClick} />}
+      {showEmojiPicker && <EmojiPicker style={{display:'flex', justifyContent:'center', alignItems: 'center'}} onEmojiClick={handleEmojiClick} />}
       
       <span onClick={() => setShowEmojiPicker(true)}>
   {selectedEmoji ? (
