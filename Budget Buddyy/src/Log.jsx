@@ -3,6 +3,7 @@ import axios from 'axios';
 import { GoogleLogin } from '@react-oauth/google';
 import { jwtDecode } from "jwt-decode";
 import { useNavigate,Link } from "react-router-dom";
+axios.defaults.withCredentials = true;
 function Log() {
   const [statusEmail, setStatusEmail] = useState(""); // Changed initial state to empty string
   const navigate = useNavigate();
