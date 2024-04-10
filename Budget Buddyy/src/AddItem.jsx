@@ -105,7 +105,7 @@ function AddItem() {
     <div>No emoji selected</div>
   )}
 </span></div>
-    <div className='Text-item'><input onChange={handle_item} className='Input-field-text' placeholder="aloo puri" value={item}></input></div>
+    <div className='Text-item'><input onChange={handle_item} className='Input-field-text' placeholder="Enter Item name" value={item}></input></div>
     <div className='Item-buttons'><button className='cancel-button' onClick={Handle_cancel}>Cancel</button><button className='next-button' onClick={Handle_submit}>Next</button></div>
     <div className='Fuction-button'>
     
