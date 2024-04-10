@@ -23,6 +23,10 @@ const port = 3000;
 mongoose.connect("mongodb+srv://tatsam24copywriter:bWbQN7urqvswx2bU@drivewise.zgowklk.mongodb.net/?retryWrites=true&w=majority&appName=DriveWise", {
     serverSelectionTimeoutMS: 5000
 });
+
+app.get("/",cors(),(req,res)=>{
+
+});
 app.get('/profile', authenticateToken, async (req, res) => {
   try {
     // Fetch user profile information using the email extracted from the token
