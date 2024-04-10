@@ -18,7 +18,7 @@ function Log() {
           return;
         }
 
-        const response = await axios.get("http://localhost:3000/home", {
+        const response = await axios.get("https://budget-buddyy-server.vercel.app/home", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -44,7 +44,7 @@ function Log() {
     console.log(decoded.picture);
 
     try {
-      const registerResponse = await axios.post("http://localhost:3000/register", {
+      const registerResponse = await axios.post("https://budget-buddyy-server.vercel.app/register", {
         name: decoded.name,
         email: decoded.email,
         picture :decoded.picture,
@@ -54,7 +54,7 @@ function Log() {
         console.log("User creation successful");
 
         // If registration successful, proceed to sign in
-        const signInResponse = await axios.post("http://localhost:3000/signin", { // Corrected the URL to signin
+        const signInResponse = await axios.post("https://budget-buddyy-server.vercel.app/signin", { // Corrected the URL to signin
           name: decoded.name,
           email: decoded.email,
         });
@@ -71,7 +71,7 @@ function Log() {
       } else if (registerResponse.data === "Email already exists") {
         console.log("Email already exists");
         setStatusEmail("Email already exists");
-        const signInResponse = await axios.post("http://localhost:3000/signin", { // Corrected the URL to signin
+        const signInResponse = await axios.post("https://budget-buddyy-server.vercel.app/signin", { // Corrected the URL to signin
           name: decoded.name,
           email: decoded.email,
         });
