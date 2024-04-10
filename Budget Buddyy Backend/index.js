@@ -24,9 +24,7 @@ mongoose.connect("mongodb+srv://tatsam24copywriter:bWbQN7urqvswx2bU@drivewise.zg
     serverSelectionTimeoutMS: 5000
 });
 
-app.use("/", (req, res) => {
-  res.send("hi");
-});
+
 
 app.get('/profile', authenticateToken, async (req, res) => {
   try {
