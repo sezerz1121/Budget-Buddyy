@@ -28,7 +28,7 @@ function AddItem() {
     }
     const Handle_submit = async () => {
         try {
-            const registerResponse = await axios.post("http://localhost:3000/newbudget", {
+            const registerResponse = await axios.post("https://budget-buddyy-server.vercel.app/newbudget", {
                 ref_id: user._id,
                 price: price,
                 emoji: selectedEmoji,
@@ -73,7 +73,7 @@ function AddItem() {
               return;
             }
       
-            const response = await axios.get("http://localhost:3000/profile", {
+            const response = await axios.get("https://budget-buddyy-server.vercel.app/profile", {
               headers: {
                 Authorization: `Bearer ${token}`,
               },
