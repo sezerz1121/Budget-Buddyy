@@ -58,7 +58,7 @@ function Analitics() {
               return;
             }
       
-            const response = await axios.get("http://localhost:3000/profile", {
+            const response = await axios.get("https://budget-buddyy-server.vercel.app/profile", {
               headers: {
                 Authorization: `Bearer ${token}`,
               },
@@ -83,7 +83,7 @@ function Analitics() {
             return;
           }
     
-          const response = await axios.get("http://localhost:3000/Budgetcards", {
+          const response = await axios.get("https://budget-buddyy-server.vercel.app/Budgetcards", {
             headers: {
               Authorization: `Bearer ${token}`,
             },
