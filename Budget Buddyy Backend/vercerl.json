@@ -4,11 +4,7 @@
     { "src": "./index.js", "use": "@vercel/node" }
   ],
   "routes": [
-    { "src": "/profile", "dest": "/" },
-    { "src": "/home", "dest": "/" },
-    { "src": "/Budgetcards", "dest": "/" },
-    { "src": "/register", "dest": "/" },
-    { "src": "/newbudget", "dest": "/" },
-    { "src": "/SignIn", "dest": "/" }
+    { "src": "/(.*)", "dest": "/" }
   ]
 }
+
