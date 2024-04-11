@@ -581,10 +581,11 @@ body
         position: absolute;
         top: 50%;
         right: 10%;
-        height: 250px;
+        height: 235px;
         width: 300px;
         background-color: #4AB1BF;
         border-radius: 15px;
+        padding-top: 15px;
   
     }
     .Spent-item
