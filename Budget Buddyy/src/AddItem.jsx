@@ -4,7 +4,7 @@ import axios from 'axios';
 import { useNavigate,Link } from "react-router-dom";
 import BudgetCard from './BudgetCard';
 import EmojiPicker from 'emoji-picker-react';
-
+import { IoMdAdd } from "react-icons/io";
 function AddItem() {
   
     const [user, setUser] = useState(null);
@@ -102,7 +102,7 @@ function AddItem() {
   {selectedEmoji ? (
     <div>{selectedEmoji}</div>
   ) : (
-    <div>No emoji selected</div>
+    <div className='addemoji'> <IoMdAdd /> No emoji selected</div>
   )}
 </span></div>
     <div className='Text-item'><input onChange={handle_item} className='Input-field-text' placeholder="Enter Item name" value={item}></input></div>
