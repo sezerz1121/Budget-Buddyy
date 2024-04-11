@@ -478,6 +478,12 @@ body
     justify-content: center;
     font-weight: 600;
 }
+.addemoji
+{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
 @media (min-width: 320px) and (max-width: 375px) {
     body {
         background-color: lightgreen;
