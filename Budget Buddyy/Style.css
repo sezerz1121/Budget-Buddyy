@@ -482,9 +482,17 @@ body
     body {
         background-color: lightgreen;
     }
+    .Title-name
+    {
+        display: flex;
+        color: #126E82;
+        align-items: center;
+        margin-left: 42px;
+    }
 
     .Screen {
         height: 100%;
+        width: 375px;
         border-radius: 0%;
     }
     .Spent-name
@@ -510,44 +518,58 @@ body
     .analatic,
     .Add-item {
         background-color: #132C33;
-        height: 50px;
-        width: 50px;
+        height: 40px;
+        width: 40px;
         border-radius: 50%;
         display: flex;
         justify-content: center;
         align-items: center;
         color: #51C4D3;
         font-size: 30px;
+        margin-bottom: 15px;
     }
 
     .analatic:hover,
     .Add-item:hover {
         background-color: #51C4D3;
-        height: 50px;
-        width: 50px;
+        height: 40px;
+        width: 40px;
         border-radius: 50%;
         display: flex;
         justify-content: center;
         align-items: center;
         color: #132C33;
         font-size: 30px;
+        margin-bottom: 15px;
     }
 
-    .Profile,
-    .Profile-div {
-        height: 50px;
-        width: 50px;
+    .Profile
+    {
+        height: 40px;
+        width: 40px;
         border-radius: 50%;
         display: flex;
         justify-content: center;
         align-items: center;
+        
+    }
+    .Profile-div {
+        height: 40px;
+        width: 40px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 15px; 
+        
+        
     }
 
     .Fuction-button {
         display: flex;
         justify-content: space-around;
         align-items: center;
-        width: 436px;
+        width: 360px;
         height: 55px;
     }
     .Dropdown
@@ -617,6 +639,51 @@ body
         align-items: center;
         margin-bottom: 100px;
         margin-top: 46px;
+    }
+    .BudgetCard
+    {
+        display: flex;
+        align-items: center;
+        width: 316px;
+        height: 88px;
+    }
+    .Emoji
+    {
+        font-size: 42px;
+        margin-right: 29px;
+    }
+    .Item-info
+    {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        margin-right: 80px;
+    }
+    .item-name
+    {
+        font-size: 16px;
+        font-weight: 400;
+        margin-bottom: 3px;
+        width: 75px;
+    }
+    .item-date
+    {
+        font-size: 16px;
+        font-weight: 400;
+    }
+    .Budget-price
+    {
+        color: red;
+    }
+    .Profile-div-add
+    {
+        height: 40px;
+        width: 40px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 50px; 
     }
 }
 @media (min-width: 376px) and (max-width: 420px) {
