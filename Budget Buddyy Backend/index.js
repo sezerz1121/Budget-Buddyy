@@ -184,13 +184,10 @@ app.get('/generate-pdf', async (req, res) => {
     try {
         // Fetch user's info based on their refID (_id in this case)
         const userRefID = req.query._id;
-        console.log(userRefID);
-        const __filename = fileURLToPath(import.meta.url);
-
-        // Define the directory name using path.dirname
-        const __dirname = path.dirname(__filename);
-        const userCards = await UserBudget.find({ ref_id: userRefID });
         const user = await UserModel.findOne({ _id: userRefID });
+
+        // Fetch user's budget data
+        const userCards = await UserBudget.find({ ref_id: userRefID });
 
         // Organize budget data by month
         const monthlySpending = {};
@@ -204,17 +201,16 @@ app.get('/generate-pdf', async (req, res) => {
         });
 
         // Define the folder path to store the PDFs
-        const folderPath = path.join(__dirname, 'pdf'); // Define the folder path as './pdf'
-        fs.mkdirSync(folderPath, { recursive: true }); // Ensure the folder exists, create it if it doesn't
+        const folderPath = path.join(__dirname, 'pdf');
+        fs.mkdirSync(folderPath, { recursive: true });
 
         // Generate PDF for each month
-        const pdfPaths = [];
-        const pdfFileNames = [];
+        const pdfUrls = [];
         Object.entries(monthlySpending).forEach(([yearMonth, spending]) => {
             // Generate PDF
             const doc = new PDFDocument();
-            const fileName = `budget_${user.name}_${yearMonth}_${Date.now()}.pdf`; // Append a unique identifier to the filename including user's name
-            const filePath = path.join(folderPath, fileName); // Define the full file path
+            const fileName = `budget_${user.name}_${yearMonth}_${Date.now()}.pdf`;
+            const filePath = path.join(folderPath, fileName);
             doc.pipe(fs.createWriteStream(filePath));
 
             // Add user's name as title on top of each PDF
@@ -222,32 +218,27 @@ app.get('/generate-pdf', async (req, res) => {
 
             spending.forEach(entry => {
                 const date = new Date(entry.datetime);
-                doc.fontSize(12).text(`Date: ${date.toDateString()}, Item: ${entry.item_name}, Price: Rs${entry.price}`).moveDown(); // Replaced $ with ₹
+                doc.fontSize(12).text(`Date: ${date.toDateString()}, Item: ${entry.item_name}, Price: Rs${entry.price}`).moveDown();
             });
 
             const totalSpending = spending.reduce((total, entry) => total + entry.price, 0);
-            doc.fontSize(14).text(`Total Spending for ${yearMonth}: Rs${totalSpending}`).moveDown(); // Replaced $ with ₹ for total spending
+            doc.fontSize(14).text(`Total Spending for ${yearMonth}: Rs${totalSpending}`).moveDown();
 
             doc.end();
 
-            pdfPaths.push(filePath); // Store the file path for later use
-            pdfFileNames.push(fileName); // Store the file name for later use
+            // Construct download URL
+            const downloadUrl = `/pdf/${fileName}`;
+            pdfUrls.push(downloadUrl);
         });
 
-        // Send the file names as response
-        res.status(200).json({ pdfFileNames, pdfPaths });
-    } catch (error) {
-        console.error('Error generating PDFs:', error);
-        res.status(500).send('Error generating PDFs');
-    }
-
-        // Send the file names and paths as response
-        res.status(200).json({ pdfFileNames, pdfPaths });
+        // Send the file names and download URLs as response
+        res.status(200).json({ pdfUrls });
     } catch (error) {
         console.error('Error generating PDFs:', error);
         res.status(500).send('Error generating PDFs');
     }
 });
+
 
 
 
