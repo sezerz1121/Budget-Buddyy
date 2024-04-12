@@ -32,9 +32,7 @@ mongoose.connect("mongodb+srv://tatsam24copywriter:bWbQN7urqvswx2bU@drivewise.zg
     serverSelectionTimeoutMS: 5000
 });
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+
 
 app.get('/profile', authenticateToken, async (req, res) => {
   try {
