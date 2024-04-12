@@ -44,31 +44,33 @@ function Analitics() {
         
         navigate('/');
       };
-  const handle_pdf = async () => {
-        try {
-            const registerResponse = await axios.get("https://budget-buddyy-server.vercel.app/generate-pdf", {
-                params: {
-                    _id: user._id,
-                },
-            });
-          
-          
-        // Extract the file URLs from the response data
-        const { pdfUrls } = registerResponse.data;
-        console.log(pdfUrls);
+ const handle_pdf = async () => {
+    try {
+        const registerResponse = await axios.get("https://budget-buddyy-server.vercel.app/generate-pdf", {
+            params: {
+                _id: user._id,
+            },
+        });
 
-        // Ensure that there is at least one PDF URL in the response
-        if (pdfUrls.length > 0) {
-            // Get the first PDF URL (assuming there's only one PDF generated)
-            const pdfUrl = pdfUrls[0];
+        // Extract the file paths from the response data
+        const { pdfPaths } = registerResponse.data;
+        console.log(pdfPaths);
 
-            // Extract the filename from the URL
-            const urlParts = pdfUrl.split('/');
-            const filename = urlParts[urlParts.length - 1]; // Get the last part of the URL as the filename
+        // Ensure that there is at least one PDF path in the response
+        if (pdfPaths.length > 0) {
+            // Get the first PDF path (assuming there's only one PDF generated)
+            const pdfPath = pdfPaths[0];
+
+            // Extract the filename from the path
+            const urlParts = pdfPath.split('/');
+            const filename = urlParts[urlParts.length - 1]; // Get the last part of the path as the filename
+
+            // Construct the download URL for the PDF file
+            const downloadUrl = `https://budget-buddyy-server.vercel.app/${pdfPath}`;
 
             // Create a link element
             const link = document.createElement('a');
-            link.href = pdfUrl;
+            link.href = downloadUrl;
             link.setAttribute('download', filename); // Set the filename for the download
 
             // Append the link to the document body and trigger the download
@@ -84,7 +86,7 @@ function Analitics() {
             // Redirect to Home after successful download
             navigate('/Home');
         } else {
-            // Handle the case where no PDF URL is returned
+            // Handle the case where no PDF path is returned
             alert("No PDF file generated. Please try again later.");
         }
     } catch (error) {
@@ -92,6 +94,7 @@ function Analitics() {
         alert("Failed to generate or download PDF. Please try again later.");
     }
 };
+
 
     const handle_Add_item =()=>
     {
