@@ -252,8 +252,11 @@ app.get('/generate-pdf', async (req, res) => {
 
 // Route to serve PDF files
 app.get('/pdf/:fileName', (req, res) => {
+  
   const fileName = req.params.fileName;
   const filePath = path.join(__dirname, 'pdf', fileName);
+  res.setHeader('Access-Control-Allow-Origin', 'https://budget-buddyy-client.vercel.app');
+  res.setHeader('Access-Control-Allow-Methods', 'GET');
   res.sendFile(filePath);
 });
 
