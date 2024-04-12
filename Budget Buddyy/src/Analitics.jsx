@@ -46,29 +46,34 @@ function Analitics() {
       };
 const handlePdfDownload = async () => {
     try {
-        const registerResponse = await axios.get("https://budget-buddyy-server.vercel.app/generate-pdf", {
+        const user = getCurrentUser(); // Assuming you have a function to get the current user
+        if (!user) {
+            alert("User not logged in.");
+            return;
+        }
+
+        const downloadResponse = await axios.get("https://budget-buddyy-server.vercel.app/generate-pdf", {
             params: {
                 _id: user._id,
             },
         });
 
-        // Extract the pdfFileNames and pdfPaths from the response data
-        const { pdfFileNames, pdfPaths } = registerResponse.data;
+        // Extract the pdfFiles from the response data
+        const { pdfFiles } = downloadResponse.data;
 
-        // Ensure that there is at least one PDF file name and path in the response
-        if (pdfFileNames.length > 0 && pdfPaths.length > 0) {
-            // Loop through each PDF file name and path
-            for (let i = 0; i < pdfFileNames.length; i++) {
+        // Ensure that there is at least one PDF file in the response
+        if (pdfFiles.length > 0) {
+            // Loop through each PDF file
+            for (let i = 0; i < pdfFiles.length; i++) {
                 try {
-                    const downloadUrl = pdfPaths[i];
+                    const downloadUrl = `https://budget-buddyy-server.vercel.app/pdf/${pdfFiles[i].fileName}`;
 
                     // Create a link element
                     const link = document.createElement('a');
                     link.href = downloadUrl;
 
-                    // Extract the filename from the download URL
-                    const pdfFileName = pdfFileNames[i];
-                    link.setAttribute('download', pdfFileName); // Set the filename for the download
+                    // Set the filename for the download
+                    link.setAttribute('download', pdfFiles[i].fileName);
 
                     // Append the link to the document body and trigger the download
                     document.body.appendChild(link);
@@ -90,9 +95,9 @@ const handlePdfDownload = async () => {
             alert("PDFs generated and downloaded successfully!");
 
             // Redirect to Home after successful download
-            navigate('/Home');
+            navigate('/Home'); // Assuming you have a function to navigate to the Home page
         } else {
-            // Handle the case where no PDF file names or paths are returned
+            // Handle the case where no PDF files are returned
             alert("No PDF files generated. Please try again later.");
         }
     } catch (error) {
@@ -100,6 +105,7 @@ const handlePdfDownload = async () => {
         alert("Failed to generate or download PDFs. Please try again later.");
     }
 };
+
 
 
 
