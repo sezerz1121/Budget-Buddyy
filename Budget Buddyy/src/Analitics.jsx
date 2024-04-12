@@ -46,7 +46,7 @@ function Analitics() {
       };
   const handle_pdf = async () => {
         try {
-            const registerResponse = await axios.get("http://localhost:3000/generate-pdf", {
+            const registerResponse = await axios.get("https://budget-buddyy-server.vercel.app/generate-pdf", {
                 params: {
                     _id: user._id,
                 },
