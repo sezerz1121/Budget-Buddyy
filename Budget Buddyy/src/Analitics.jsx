@@ -191,7 +191,7 @@ function Analitics() {
               />
             )}
     </div>
-    <div className='Spent-div3'><button onClick={handle_pdf} className='button-pdf'>Download Expenses Pdf <div className='icon'><FaRegFilePdf /></div></button></div>
+    <div className='Spent-div3'><button onClick={handlePdfDownload} className='button-pdf'>Download Expenses Pdf <div className='icon'><FaRegFilePdf /></div></button></div>
     <div className='Title-item'><div><p className='Spent-item'>Today</p></div><div><p className='Spent-item-price'>₹-{totalToday}</p></div></div>
     
     <div className='items' style={{ overflowY: 'auto' }}>
