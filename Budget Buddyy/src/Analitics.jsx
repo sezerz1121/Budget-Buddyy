@@ -52,43 +52,46 @@ function Analitics() {
             },
         });
 
-        // Extract the file name from the response data
-        const { pdfFileNames } = registerResponse.data;
-        console.log(pdfFileNames);
+        // Extract the pdfUrls from the response data
+        const { pdfUrls } = registerResponse.data;
+        
+        // Ensure that there is at least one PDF download URL in the response
+        if (pdfUrls.length > 0) {
+            // Iterate through each PDF download URL
+            pdfUrls.forEach(async (downloadUrl) => {
+                try {
+                    // Create a link element
+                    const link = document.createElement('a');
+                    link.href = downloadUrl;
+                    
+                    // Extract the filename from the download URL
+                    const pdfFileName = decodeURIComponent(downloadUrl.split('/').pop());
+                    link.setAttribute('download', pdfFileName); // Set the filename for the download
 
-        // Ensure that there is at least one PDF file name in the response
-        if (pdfFileNames.length > 0) {
-            // Get the first PDF file name (assuming there's only one PDF generated)
-            const pdfFileName = pdfFileNames[0];
+                    // Append the link to the document body and trigger the download
+                    document.body.appendChild(link);
+                    link.click();
 
-            // Construct the download URL for the PDF file
-          const downloadUrl = `https://budget-buddyy-server.vercel.app/pdf/${encodeURIComponent(pdfFileName)}`;
+                    // Cleanup: remove the link
+                    document.body.removeChild(link);
+                } catch (error) {
+                    console.error("Error downloading PDF:", error);
+                    alert("Failed to download PDF. Please try again later.");
+                }
+            });
 
-
-            // Create a link element
-            const link = document.createElement('a');
-            link.href = downloadUrl;
-            link.setAttribute('download', pdfFileName); // Set the filename for the download
-
-            // Append the link to the document body and trigger the download
-            document.body.appendChild(link);
-            link.click();
-
-            // Cleanup: remove the link
-            document.body.removeChild(link);
-
-            // Show confirmation message
-            alert("PDF generated and downloaded successfully!");
+            // Show confirmation message after all PDFs are downloaded
+            alert("PDFs generated and downloaded successfully!");
 
             // Redirect to Home after successful download
             navigate('/Home');
         } else {
-            // Handle the case where no PDF file name is returned
-            alert("No PDF file generated. Please try again later.");
+            // Handle the case where no PDF download URLs are returned
+            alert("No PDF files generated. Please try again later.");
         }
     } catch (error) {
         console.error("Error:", error);
-        alert("Failed to generate or download PDF. Please try again later.");
+        alert("Failed to generate or download PDFs. Please try again later.");
     }
 };
 
