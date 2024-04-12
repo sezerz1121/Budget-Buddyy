@@ -52,20 +52,22 @@ const handlePdfDownload = async () => {
             },
         });
 
-        // Extract the pdfUrls from the response data
-        const { pdfUrls } = registerResponse.data;
+        // Extract the pdfFileNames and pdfPaths from the response data
+        const { pdfFileNames, pdfPaths } = registerResponse.data;
 
-        // Ensure that there is at least one PDF download URL in the response
-        if (pdfUrls.length > 0) {
-            // Loop through each PDF download URL
-            for (const downloadUrl of pdfUrls) {
+        // Ensure that there is at least one PDF file name and path in the response
+        if (pdfFileNames.length > 0 && pdfPaths.length > 0) {
+            // Loop through each PDF file name and path
+            for (let i = 0; i < pdfFileNames.length; i++) {
                 try {
+                    const downloadUrl = pdfPaths[i];
+
                     // Create a link element
                     const link = document.createElement('a');
                     link.href = downloadUrl;
 
                     // Extract the filename from the download URL
-                    const pdfFileName = decodeURIComponent(downloadUrl.split('/').pop());
+                    const pdfFileName = pdfFileNames[i];
                     link.setAttribute('download', pdfFileName); // Set the filename for the download
 
                     // Append the link to the document body and trigger the download
@@ -90,7 +92,7 @@ const handlePdfDownload = async () => {
             // Redirect to Home after successful download
             navigate('/Home');
         } else {
-            // Handle the case where no PDF download URLs are returned
+            // Handle the case where no PDF file names or paths are returned
             alert("No PDF files generated. Please try again later.");
         }
     } catch (error) {
