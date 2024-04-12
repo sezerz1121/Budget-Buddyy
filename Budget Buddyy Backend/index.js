@@ -21,8 +21,10 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 app.use(cors({
   origin: "https://budget-buddyy-client.vercel.app",
-  credentials: true
-}));
+  credentials: true,
+  methods: ['GET', 'POST'], // Allow GET and POST methods
+  allowedHeaders: ['Content-Type', 'Authorization'] // Allow specific headers
+}))
 app.use('/pdf', express.static(path.join(__dirname, 'pdf')));
 
 
