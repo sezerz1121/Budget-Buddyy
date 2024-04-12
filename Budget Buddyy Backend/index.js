@@ -181,62 +181,64 @@ const fs = require('fs');
 const PDFDocument = require('pdfkit');
 
 app.get('/generate-pdf', async (req, res) => {
-    try {
-        // Fetch user's info based on their refID (_id in this case)
-        const userRefID = req.query._id;
-        const user = await UserModel.findOne({ _id: userRefID });
+  try {
+    // Fetch user's info based on their refID (_id in this case)
+    const userRefID = req.query._id;
+    console.log(userRefID);
 
-        // Fetch user's budget data
-        const userCards = await UserBudget.find({ ref_id: userRefID });
-
-        // Organize budget data by month
-        const monthlySpending = {};
-        userCards.forEach(entry => {
-            const date = new Date(entry.datetime);
-            const yearMonth = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
-            if (!monthlySpending[yearMonth]) {
-                monthlySpending[yearMonth] = [];
-            }
-            monthlySpending[yearMonth].push(entry);
-        });
-
-        // Define the folder path to store the PDFs
-        const folderPath = path.join(__dirname, 'pdf');
-        fs.mkdirSync(folderPath, { recursive: true });
-
-        // Generate PDF for each month
-        const pdfUrls = [];
-        Object.entries(monthlySpending).forEach(([yearMonth, spending]) => {
-            // Generate PDF
-            const doc = new PDFDocument();
-            const fileName = `budget_${user.name}_${yearMonth}_${Date.now()}.pdf`;
-            const filePath = path.join(folderPath, fileName);
-            doc.pipe(fs.createWriteStream(filePath));
-
-            // Add user's name as title on top of each PDF
-            doc.fontSize(16).text(`User: ${user.name}`, { align: 'center' }).moveDown(0.5);
-
-            spending.forEach(entry => {
-                const date = new Date(entry.datetime);
-                doc.fontSize(12).text(`Date: ${date.toDateString()}, Item: ${entry.item_name}, Price: Rs${entry.price}`).moveDown();
-            });
-
-            const totalSpending = spending.reduce((total, entry) => total + entry.price, 0);
-            doc.fontSize(14).text(`Total Spending for ${yearMonth}: Rs${totalSpending}`).moveDown();
-
-            doc.end();
-
-            // Construct download URL
-            const downloadUrl = `/pdf/${fileName}`;
-            pdfUrls.push(downloadUrl);
-        });
-
-        // Send the file names and download URLs as response
-        res.status(200).json({ pdfUrls });
-    } catch (error) {
-        console.error('Error generating PDFs:', error);
-        res.status(500).send('Error generating PDFs');
+    const user = await UserModel.findOne({ _id: userRefID });
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
     }
+
+    const userCards = await UserBudget.find({ ref_id: userRefID });
+
+    // Organize budget data by month
+    const monthlySpending = {};
+    userCards.forEach(entry => {
+      const date = new Date(entry.datetime);
+      const yearMonth = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
+      if (!monthlySpending[yearMonth]) {
+        monthlySpending[yearMonth] = [];
+      }
+      monthlySpending[yearMonth].push(entry);
+    });
+
+    // Define the folder path to store the PDFs
+    const folderPath = path.join(__dirname, 'pdf');
+    fs.mkdirSync(folderPath, { recursive: true });
+
+    // Generate PDF for each month
+    const pdfUrls = [];
+    Object.entries(monthlySpending).forEach(([yearMonth, spending]) => {
+      // Generate PDF
+      const doc = new PDFDocument();
+      const fileName = `budget_${user.name}_${yearMonth}_${Date.now()}.pdf`;
+      const filePath = path.join(folderPath, fileName);
+      doc.pipe(fs.createWriteStream(filePath));
+
+      // Add user's name as title on top of each PDF
+      doc.fontSize(16).text(`User: ${user.name}`, { align: 'center' }).moveDown(0.5);
+
+      spending.forEach(entry => {
+        const date = new Date(entry.datetime);
+        doc.fontSize(12).text(`Date: ${date.toDateString()}, Item: ${entry.item_name}, Price: ₹${entry.price}`).moveDown();
+      });
+
+      const totalSpending = spending.reduce((total, entry) => total + entry.price, 0);
+      doc.fontSize(14).text(`Total Spending for ${yearMonth}: ₹${totalSpending}`).moveDown();
+
+      doc.end();
+
+      pdfUrls.push(`/pdf/${fileName}`);
+    });
+
+    // Send the file URLs as response
+    res.status(200).json({ pdfUrls });
+  } catch (error) {
+    console.error('Error generating PDFs:', error);
+    res.status(500).send('Error generating PDFs');
+  }
 });
 
 
