@@ -52,19 +52,24 @@ function Analitics() {
                 },
             });
           
-           // Extract the file paths from the response data
-        const { pdfFilePaths } = registerResponse.data;
-        console.log(pdfFilePaths);
+          
+        // Extract the file URLs from the response data
+        const { pdfUrls } = registerResponse.data;
+        console.log(pdfUrls);
 
-        // Ensure that there is at least one PDF file path in the response
-        if (pdfFilePaths.length > 0) {
-            // Get the first PDF file path (assuming there's only one PDF generated)
-            const pdfFilePath = pdfFilePaths[0];
+        // Ensure that there is at least one PDF URL in the response
+        if (pdfUrls.length > 0) {
+            // Get the first PDF URL (assuming there's only one PDF generated)
+            const pdfUrl = pdfUrls[0];
+
+            // Extract the filename from the URL
+            const urlParts = pdfUrl.split('/');
+            const filename = urlParts[urlParts.length - 1]; // Get the last part of the URL as the filename
 
             // Create a link element
             const link = document.createElement('a');
-            link.href = pdfFilePath;
-            link.setAttribute('download', 'budget.pdf'); // Set the filename for the download
+            link.href = pdfUrl;
+            link.setAttribute('download', filename); // Set the filename for the download
 
             // Append the link to the document body and trigger the download
             document.body.appendChild(link);
@@ -79,7 +84,7 @@ function Analitics() {
             // Redirect to Home after successful download
             navigate('/Home');
         } else {
-            // Handle the case where no PDF file path is returned
+            // Handle the case where no PDF URL is returned
             alert("No PDF file generated. Please try again later.");
         }
     } catch (error) {
@@ -87,6 +92,7 @@ function Analitics() {
         alert("Failed to generate or download PDF. Please try again later.");
     }
 };
+
     const handle_Add_item =()=>
     {
       navigate('/AddItem');
