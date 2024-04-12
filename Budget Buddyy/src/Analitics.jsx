@@ -5,7 +5,7 @@ import { LuPieChart } from "react-icons/lu";
 import { IoMdAdd } from "react-icons/io";
 import BudgetCard from './BudgetCard';
 import Dropdown from './Dropdown';
-
+import { FaRegFilePdf } from "react-icons/fa6";
 function Analitics() {
   const [user, setUser] = useState(null);
     const navigate = useNavigate();
@@ -110,6 +110,7 @@ function Analitics() {
           hour: '2-digit',
           minute: '2-digit'
         });
+
       
         return (
           <BudgetCard
@@ -122,7 +123,52 @@ function Analitics() {
         );
       }
       const totalPrice = userCards.reduce((total, card) => total + card.price, 0);
-      
+       const handle_pdf = async () => {
+        try {
+            const registerResponse = await axios.get("http://localhost:3000/generate-pdf", {
+                params: {
+                    _id: user._id,
+                },
+            });
+          
+            // Extract the file names from the response data
+            const { pdfFileNames } = registerResponse.data;
+            console.log(pdfFileNames);
+          
+            // Ensure that there is at least one PDF file name in the response
+            if (pdfFileNames.length > 0) {
+                // Get the first PDF file name (assuming there's only one PDF generated)
+                const pdfFileName = pdfFileNames[0];
+    
+                // Construct the download URL for the PDF file
+                const downloadUrl = `http://localhost:3000/pdf/${pdfFileName}`;
+    
+                // Create a link element
+                const link = document.createElement('a');
+                link.href = downloadUrl;
+                link.setAttribute('download', pdfFileName); // Set the filename for the download
+    
+                // Append the link to the document body and trigger the download
+                document.body.appendChild(link);
+                link.click();
+    
+                // Cleanup: remove the link
+                document.body.removeChild(link);
+    
+                // Show confirmation message
+                alert("PDF generated and downloaded successfully!");
+    
+                // Redirect to Home after successful download
+                navigate('/Home');
+            } else {
+                // Handle the case where no PDF file name is returned
+                alert("No PDF file generated. Please try again later.");
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            alert("Failed to generate or download PDF. Please try again later.");
+        }
+    };
   return (
     <>
     <div className='Screen-parent'>
@@ -142,6 +188,7 @@ function Analitics() {
               />
             )}
     </div>
+    <div className='Spent-div3'><button onClick={handle_pdf} className='button-pdf'>Download Expenses Pdf <div className='icon'><FaRegFilePdf /></div></button></div>
     <div className='Title-item'><div><p className='Spent-item'>Today</p></div><div><p className='Spent-item-price'>₹-{totalToday}</p></div></div>
     
     <div className='items' style={{ overflowY: 'auto' }}>
