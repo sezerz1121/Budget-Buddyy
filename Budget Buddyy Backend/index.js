@@ -176,14 +176,19 @@ app.post("/SignIn", async (req, res) => {
     }
   });
 
- app.get('/generate-pdf', async (req, res) => {
+const path = require('path');
+const fs = require('fs');
+const PDFDocument = require('pdfkit');
+
+app.get('/generate-pdf', async (req, res) => {
     try {
         // Fetch user's info based on their refID (_id in this case)
         const userRefID = req.query._id;
-        const user = await UserModel.findOne({ _id: userRefID });
+        console.log(userRefID);
 
         // Fetch user's budget data
         const userCards = await UserBudget.find({ ref_id: userRefID });
+        const user = await UserModel.findOne({ _id: userRefID });
 
         // Organize budget data by month
         const monthlySpending = {};
@@ -196,12 +201,15 @@ app.post("/SignIn", async (req, res) => {
             monthlySpending[yearMonth].push(entry);
         });
 
-        // Define the folder path to store the PDFs
+        // Define the directory path to store the PDFs
+        const __filename = fileURLToPath(import.meta.url);
+        const __dirname = path.dirname(__filename);
         const folderPath = path.join(__dirname, 'pdf');
         fs.mkdirSync(folderPath, { recursive: true });
 
         // Generate PDF for each month
-        const pdfUrls = [];
+        const pdfFileNames = [];
+        const pdfPaths = [];
         Object.entries(monthlySpending).forEach(([yearMonth, spending]) => {
             // Generate PDF
             const doc = new PDFDocument();
@@ -222,18 +230,19 @@ app.post("/SignIn", async (req, res) => {
 
             doc.end();
 
-            // Construct download URL
-            const downloadUrl = `/pdf/${fileName}`;
-            pdfUrls.push(downloadUrl);
+            // Store the file name and path for later use
+            pdfFileNames.push(fileName);
+            pdfPaths.push(filePath);
         });
 
-        // Send the file names and download URLs as response
-        res.status(200).json({ pdfUrls });
+        // Send the file names and paths as response
+        res.status(200).json({ pdfFileNames, pdfPaths });
     } catch (error) {
         console.error('Error generating PDFs:', error);
         res.status(500).send('Error generating PDFs');
     }
 });
+
 
 
 
