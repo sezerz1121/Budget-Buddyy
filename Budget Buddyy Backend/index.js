@@ -8,7 +8,7 @@ import authenticateToken from "./MiddleWare.js";
 import UserBudget from "./UserBudget.js";
 import PDFDocument from 'pdfkit';
 import fs from 'fs';
-
+import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -176,9 +176,7 @@ app.post("/SignIn", async (req, res) => {
     }
   });
 
-const path = require('path');
-const fs = require('fs');
-const PDFDocument = require('pdfkit');
+
 
 app.get('/generate-pdf', async (req, res) => {
   try {
@@ -245,6 +243,9 @@ app.get('/generate-pdf', async (req, res) => {
   }
 });
 
+app.listen(port, () => {
+    console.log(`Server running on port: ${port}`);
+});
 
 
 
