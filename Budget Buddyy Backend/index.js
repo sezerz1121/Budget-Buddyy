@@ -8,7 +8,7 @@ import authenticateToken from "./MiddleWare.js";
 import UserBudget from "./UserBudget.js";
 import PDFDocument from 'pdfkit';
 import fs from 'fs';
-import path from 'path';
+
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
