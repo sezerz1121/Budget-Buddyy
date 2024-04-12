@@ -44,7 +44,7 @@ function Analitics() {
         
         navigate('/');
       };
- const handlePdfDownload = async () => {
+const handlePdfDownload = async () => {
     try {
         const registerResponse = await axios.get("https://budget-buddyy-server.vercel.app/generate-pdf", {
             params: {
@@ -54,16 +54,16 @@ function Analitics() {
 
         // Extract the pdfUrls from the response data
         const { pdfUrls } = registerResponse.data;
-        
+
         // Ensure that there is at least one PDF download URL in the response
         if (pdfUrls.length > 0) {
-            // Iterate through each PDF download URL
-            pdfUrls.forEach(async (downloadUrl) => {
+            // Loop through each PDF download URL
+            for (const downloadUrl of pdfUrls) {
                 try {
                     // Create a link element
                     const link = document.createElement('a');
                     link.href = downloadUrl;
-                    
+
                     // Extract the filename from the download URL
                     const pdfFileName = decodeURIComponent(downloadUrl.split('/').pop());
                     link.setAttribute('download', pdfFileName); // Set the filename for the download
@@ -72,13 +72,17 @@ function Analitics() {
                     document.body.appendChild(link);
                     link.click();
 
+                    // Wait for the download to complete before proceeding to the next one
+                    await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for 1 second before starting the next download
+
                     // Cleanup: remove the link
                     document.body.removeChild(link);
                 } catch (error) {
                     console.error("Error downloading PDF:", error);
                     alert("Failed to download PDF. Please try again later.");
+                    return; // Stop further processing if download fails
                 }
-            });
+            }
 
             // Show confirmation message after all PDFs are downloaded
             alert("PDFs generated and downloaded successfully!");
@@ -94,6 +98,7 @@ function Analitics() {
         alert("Failed to generate or download PDFs. Please try again later.");
     }
 };
+
 
 
     const handle_Add_item =()=>
