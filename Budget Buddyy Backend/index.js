@@ -204,7 +204,8 @@ app.post("/SignIn", async (req, res) => {
         fs.mkdirSync(folderPath, { recursive: true }); // Ensure the folder exists, create it if it doesn't
 
         // Generate PDF for each month
-        const pdfFilePaths = [];
+        const pdfPaths = [];
+        const pdfFileNames = [];
         Object.entries(monthlySpending).forEach(([yearMonth, spending]) => {
             // Generate PDF
             const doc = new PDFDocument();
@@ -225,20 +226,18 @@ app.post("/SignIn", async (req, res) => {
 
             doc.end();
 
-            pdfFilePaths.push(filePath); // Store the file path for later use
+            pdfPaths.push(filePath); // Store the file path for later use
+            pdfFileNames.push(fileName); // Store the file name for later use
         });
 
-        // Send the file paths as response
-        const pdfUrls = pdfFilePaths.map(filePath => {
-            const fileName = path.basename(filePath);
-            return `/var/task/Budget Buddyy Backend/pdf/${fileName}`; // Adjust the URL according to your backend deployment
-        });
-        res.status(200).json({ pdfUrls });
+        // Send the file names as response
+        res.status(200).json({ pdfFileNames, pdfPaths });
     } catch (error) {
         console.error('Error generating PDFs:', error);
         res.status(500).send('Error generating PDFs');
     }
 });
+
 
 
 
