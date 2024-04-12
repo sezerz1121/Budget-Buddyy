@@ -26,13 +26,15 @@ app.use('/pdf', express.static(path.join(__dirname, 'pdf')));
 
 
 const secretKey = '123456789';
-const port = 3000;
+const port = process.env.PORT || 3000;
 
 mongoose.connect("mongodb+srv://tatsam24copywriter:bWbQN7urqvswx2bU@drivewise.zgowklk.mongodb.net/?retryWrites=true&w=majority&appName=DriveWise", {
     serverSelectionTimeoutMS: 5000
 });
 
-
+app.listen(PORT, () => {
+  console.log(`Server is running on port ${PORT}`);
+});
 
 app.get('/profile', authenticateToken, async (req, res) => {
   try {
