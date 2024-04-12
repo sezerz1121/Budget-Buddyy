@@ -209,7 +209,7 @@ app.get('/generate-pdf', async (req, res) => {
     fs.mkdirSync(folderPath, { recursive: true });
 
     // Generate PDF for each month
-    const pdfUrls = [];
+    const pdfFiles = [];
     Object.entries(monthlySpending).forEach(([yearMonth, spending]) => {
       // Generate PDF
       const doc = new PDFDocument();
@@ -230,11 +230,15 @@ app.get('/generate-pdf', async (req, res) => {
 
       doc.end();
 
-      pdfUrls.push(`/pdf/${fileName}`);
+      // Store PDF file details
+      pdfFiles.push({
+        fileName: fileName,
+        filePath: filePath
+      });
     });
 
-    // Send the file URLs as response
-    res.status(200).json({ pdfUrls });
+    // Send the file details as response
+    res.status(200).json({ pdfFiles });
   } catch (error) {
     console.error('Error generating PDFs:', error);
     res.status(500).send('Error generating PDFs');
