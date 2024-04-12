@@ -62,7 +62,7 @@ function Analitics() {
             const pdfFileName = pdfFileNames[0];
 
             // Construct the download URL for the PDF file
-            const downloadUrl = `https://budget-buddyy-server.vercel.app/download-pdf?filename=${encodeURIComponent(pdfFileName)}`;
+            const downloadUrl = `/var/task/Budget Buddyy Backend/pdf/filename=${encodeURIComponent(pdfFileName)}`;
 
             // Create a link element
             const link = document.createElement('a');
