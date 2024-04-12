@@ -10,6 +10,7 @@ import PDFDocument from 'pdfkit';
 import multer from 'multer';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import fs from 'fs';
 
 const __filename = fileURLToPath(import.meta.url);
   
@@ -252,11 +253,14 @@ app.get('/generate-pdf', async (req, res) => {
 
 // Route to serve PDF files
 app.get('/pdf/:fileName', (req, res) => {
-  
   const fileName = req.params.fileName;
   const filePath = path.join(__dirname, 'pdf', fileName);
+
+  // Set appropriate headers to allow CORS
   res.setHeader('Access-Control-Allow-Origin', 'https://budget-buddyy-client.vercel.app');
   res.setHeader('Access-Control-Allow-Methods', 'GET');
+
+  // Send the file
   res.sendFile(filePath);
 });
 
