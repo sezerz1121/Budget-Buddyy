@@ -176,16 +176,20 @@ app.post("/SignIn", async (req, res) => {
     }
   });
 
-  app.get('/generate-pdf', async (req, res) => {
+ app.get('/generate-pdf', async (req, res) => {
     try {
         // Fetch user's info based on their refID (_id in this case)
         const userRefID = req.query._id;
         console.log(userRefID);
+        const __filename = fileURLToPath(import.meta.url);
+
+        // Define the directory name using path.dirname
+        const __dirname = path.dirname(__filename);
+        const userCards = await UserBudget.find({ ref_id: userRefID });
         const user = await UserModel.findOne({ _id: userRefID });
 
         // Organize budget data by month
         const monthlySpending = {};
-        const userCards = await UserBudget.find({ ref_id: userRefID });
         userCards.forEach(entry => {
             const date = new Date(entry.datetime);
             const yearMonth = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
@@ -195,23 +199,29 @@ app.post("/SignIn", async (req, res) => {
             monthlySpending[yearMonth].push(entry);
         });
 
-        // Generate PDF for each month and return file paths
+        // Define the folder path to store the PDFs
+        const folderPath = path.join(__dirname, 'pdf'); // Define the folder path as './pdf'
+        fs.mkdirSync(folderPath, { recursive: true }); // Ensure the folder exists, create it if it doesn't
+
+        // Generate PDF for each month
         const pdfFilePaths = [];
         Object.entries(monthlySpending).forEach(([yearMonth, spending]) => {
+            // Generate PDF
             const doc = new PDFDocument();
-            const fileName = `budget_${user.name}_${yearMonth}_${Date.now()}.pdf`;
-            const filePath = path.join(__dirname, 'pdf', fileName);
+            const fileName = `budget_${user.name}_${yearMonth}_${Date.now()}.pdf`; // Append a unique identifier to the filename including user's name
+            const filePath = path.join(folderPath, fileName); // Define the full file path
             doc.pipe(fs.createWriteStream(filePath));
 
+            // Add user's name as title on top of each PDF
             doc.fontSize(16).text(`User: ${user.name}`, { align: 'center' }).moveDown(0.5);
 
             spending.forEach(entry => {
                 const date = new Date(entry.datetime);
-                doc.fontSize(12).text(`Date: ${date.toDateString()}, Item: ${entry.item_name}, Price: Rs${entry.price}`).moveDown();
+                doc.fontSize(12).text(`Date: ${date.toDateString()}, Item: ${entry.item_name}, Price: Rs${entry.price}`).moveDown(); // Replaced $ with ₹
             });
 
             const totalSpending = spending.reduce((total, entry) => total + entry.price, 0);
-            doc.fontSize(14).text(`Total Spending for ${yearMonth}: Rs${totalSpending}`).moveDown();
+            doc.fontSize(14).text(`Total Spending for ${yearMonth}: Rs${totalSpending}`).moveDown(); // Replaced $ with ₹ for total spending
 
             doc.end();
 
@@ -219,12 +229,17 @@ app.post("/SignIn", async (req, res) => {
         });
 
         // Send the file paths as response
-        res.status(200).json({ pdfFilePaths });
+        const pdfUrls = pdfFilePaths.map(filePath => {
+            const fileName = path.basename(filePath);
+            return `/var/task/Budget Buddyy Backend/pdf/${fileName}`; // Adjust the URL according to your backend deployment
+        });
+        res.status(200).json({ pdfUrls });
     } catch (error) {
         console.error('Error generating PDFs:', error);
         res.status(500).send('Error generating PDFs');
     }
 });
+
 
 
 app.listen(port, () => {
