@@ -52,44 +52,41 @@ function Analitics() {
                 },
             });
           
-            // Extract the file names from the response data
-            const { pdfFileNames } = registerResponse.data;
-            console.log(pdfFileNames);
-          
-            // Ensure that there is at least one PDF file name in the response
-            if (pdfFileNames.length > 0) {
-                // Get the first PDF file name (assuming there's only one PDF generated)
-                const pdfFileName = pdfFileNames[0];
-    
-                // Construct the download URL for the PDF file
-                const downloadUrl = `https://budget-buddyy-server.vercel.app/pdf/${pdfFileName}`;
-    
-                // Create a link element
-                const link = document.createElement('a');
-                link.href = downloadUrl;
-                link.setAttribute('download', pdfFileName); // Set the filename for the download
-    
-                // Append the link to the document body and trigger the download
-                document.body.appendChild(link);
-                link.click();
-    
-                // Cleanup: remove the link
-                document.body.removeChild(link);
-    
-                // Show confirmation message
-                alert("PDF generated and downloaded successfully!");
-    
-                // Redirect to Home after successful download
-                navigate('/Home');
-            } else {
-                // Handle the case where no PDF file name is returned
-                alert("No PDF file generated. Please try again later.");
-            }
-        } catch (error) {
-            console.error("Error:", error);
-            alert("Failed to generate or download PDF. Please try again later.");
+           // Extract the file paths from the response data
+        const { pdfFilePaths } = registerResponse.data;
+        console.log(pdfFilePaths);
+
+        // Ensure that there is at least one PDF file path in the response
+        if (pdfFilePaths.length > 0) {
+            // Get the first PDF file path (assuming there's only one PDF generated)
+            const pdfFilePath = pdfFilePaths[0];
+
+            // Create a link element
+            const link = document.createElement('a');
+            link.href = pdfFilePath;
+            link.setAttribute('download', 'budget.pdf'); // Set the filename for the download
+
+            // Append the link to the document body and trigger the download
+            document.body.appendChild(link);
+            link.click();
+
+            // Cleanup: remove the link
+            document.body.removeChild(link);
+
+            // Show confirmation message
+            alert("PDF generated and downloaded successfully!");
+
+            // Redirect to Home after successful download
+            navigate('/Home');
+        } else {
+            // Handle the case where no PDF file path is returned
+            alert("No PDF file generated. Please try again later.");
         }
-    };
+    } catch (error) {
+        console.error("Error:", error);
+        alert("Failed to generate or download PDF. Please try again later.");
+    }
+};
     const handle_Add_item =()=>
     {
       navigate('/AddItem');
