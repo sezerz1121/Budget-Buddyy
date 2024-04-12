@@ -453,12 +453,15 @@ body
     display: flex;
     justify-content: start;
     margin-top: 20px;
+    
 }
 .Analitics
 {
+   
     width: 100%;
-    height:280px;
+    height: 150px;
     margin-left: 32px;
+    
 }
 .Spent-name1
 {
@@ -483,6 +486,259 @@ body
     display: flex;
     justify-content: center;
     align-items: center;
+}
+.Spent-div3
+{
+    display: flex;
+    justify-content: start;
+    margin-top: 20px;
+    width: 100%;
+    justify-content: center;
+    margin-bottom: 55px;
+
+}
+.button-pdf
+{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #51C4D3;
+    background-color: #132C33;
+    height: 45px;
+    border-radius: 15px;
+    border: transparent;
+    font-weight: 600;
+
+}
+.button-pdf:hover
+{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #132C33;
+    background-color:#51C4D3; 
+    height: 45px;
+    border-radius: 15px;
+    border: transparent;
+    font-weight: 600;
+
+}
+.icon
+{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 16px;
+    margin-left: 6px;
+}
+@media (min-width: 320px) and (max-width: 375px) {
+    body {
+        background-color: lightgreen;
+    }
+    .Title-name
+    {
+        display: flex;
+        color: #126E82;
+        align-items: center;
+        margin-left: 42px;
+    }
+
+    .Screen {
+        height: 100%;
+        width: 375px;
+        border-radius: 0%;
+    }
+    .Spent-name
+        {
+            margin-top: 100px;
+            display: flex;
+            color: #51C4D3;
+            align-items: center;
+            justify-content: center;
+            font-weight: 400;
+        }
+    .total-price
+        {
+            height: 75px;
+            margin-bottom: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 64px;
+            color: red;
+        }
+
+    .analatic,
+    .Add-item {
+        background-color: #132C33;
+        height: 40px;
+        width: 40px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: #51C4D3;
+        font-size: 30px;
+        margin-bottom: 15px;
+    }
+
+    .analatic:hover,
+    .Add-item:hover {
+        background-color: #51C4D3;
+        height: 40px;
+        width: 40px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: #132C33;
+        font-size: 30px;
+        margin-bottom: 15px;
+    }
+
+    .Profile
+    {
+        height: 40px;
+        width: 40px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        
+    }
+    .Profile-div {
+        height: 40px;
+        width: 40px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 15px; 
+        
+        
+    }
+
+    .Fuction-button {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        width: 360px;
+        height: 55px;
+    }
+    .Dropdown
+    {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        position: absolute;
+        top: 50%;
+        right: 10%;
+        height: 235px;
+        width: 300px;
+        background-color: #4AB1BF;
+        border-radius: 15px;
+        padding-top: 15px;
+  
+    }
+    .Spent-item
+    {
+        margin-left: 35px;
+        font-size: 16px;
+        font-weight: 400;
+        color: #51C4D3;
+    }
+    .Spent-item-price
+    {
+    margin-right: 35px;
+    font-size: 16px;
+    font-weight: 400;
+    color: #51C4D3;
+    
+    }
+    .Spent-div2
+    {
+        display: flex;
+        justify-content: start;
+        margin-top: 20px;
+    }
+    .Analitics
+    {
+        width: 100%;
+        height:150px;
+        margin-left: 32px;
+    }
+    .Spent-name1
+    {
+        
+        display: flex;
+        color: #51C4D3;
+        align-items: center;
+        justify-content: center;
+        font-weight: 400;
+    }
+    .Spent-name2
+    {
+        
+        display: flex;
+        color: #126E82;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+    }
+    .Item-buttons
+    {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        margin-bottom: 100px;
+        margin-top: 46px;
+    }
+    .BudgetCard
+    {
+        display: flex;
+        align-items: center;
+        width: 316px;
+        height: 88px;
+    }
+    .Emoji
+    {
+        font-size: 42px;
+        margin-right: 29px;
+    }
+    .Item-info
+    {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        margin-right: 80px;
+    }
+    .item-name
+    {
+        font-size: 16px;
+        font-weight: 400;
+        margin-bottom: 3px;
+        width: 75px;
+    }
+    .item-date
+    {
+        font-size: 16px;
+        font-weight: 400;
+    }
+    .Budget-price
+    {
+        color: red;
+    }
+    .Profile-div-add
+    {
+        height: 40px;
+        width: 40px;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-bottom: 50px; 
+    }
 }
 @media (min-width: 320px) and (max-width: 375px) {
     body {
