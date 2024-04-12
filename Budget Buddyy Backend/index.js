@@ -189,7 +189,7 @@ app.post("/SignIn", async (req, res) => {
 
 
 
-pp.get('/generate-pdf', async (req, res) => {
+app.get('/generate-pdf', async (req, res) => {
   try {
     // Fetch user's info based on their refID (_id in this case)
     const userRefID = req.query._id;
