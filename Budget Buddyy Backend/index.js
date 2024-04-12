@@ -7,7 +7,7 @@ import UserModel from "./UserModel.js";
 import authenticateToken from "./MiddleWare.js";
 import UserBudget from "./UserBudget.js";
 import PDFDocument from 'pdfkit';
-import fs from 'fs';
+import multer from 'multer';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -27,6 +27,17 @@ app.use('/pdf', express.static(path.join(__dirname, 'pdf')));
 
 const secretKey = '123456789';
 const port = 3000;
+// Set up Multer storage for PDFs
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'pdf/');
+  },
+  filename: function (req, file, cb) {
+    cb(null, file.fieldname + '-' + Date.now() + '.pdf');
+  }
+});
+
+const upload = multer({ storage: storage });
 
 mongoose.connect("mongodb+srv://tatsam24copywriter:bWbQN7urqvswx2bU@drivewise.zgowklk.mongodb.net/?retryWrites=true&w=majority&appName=DriveWise", {
     serverSelectionTimeoutMS: 5000
@@ -178,7 +189,7 @@ app.post("/SignIn", async (req, res) => {
 
 
 
-app.get('/generate-pdf', async (req, res) => {
+pp.get('/generate-pdf', async (req, res) => {
   try {
     // Fetch user's info based on their refID (_id in this case)
     const userRefID = req.query._id;
@@ -202,17 +213,13 @@ app.get('/generate-pdf', async (req, res) => {
       monthlySpending[yearMonth].push(entry);
     });
 
-    // Define the folder path to store the PDFs
-    const folderPath = path.join(__dirname, 'pdf');
-    fs.mkdirSync(folderPath, { recursive: true });
-
     // Generate PDF for each month
     const pdfFiles = [];
     Object.entries(monthlySpending).forEach(([yearMonth, spending]) => {
       // Generate PDF
       const doc = new PDFDocument();
       const fileName = `budget_${user.name}_${yearMonth}_${Date.now()}.pdf`;
-      const filePath = path.join(folderPath, fileName);
+      const filePath = path.join('pdf/', fileName);
       doc.pipe(fs.createWriteStream(filePath));
 
       // Add user's name as title on top of each PDF
@@ -220,11 +227,11 @@ app.get('/generate-pdf', async (req, res) => {
 
       spending.forEach(entry => {
         const date = new Date(entry.datetime);
-        doc.fontSize(12).text(`Date: ${date.toDateString()}, Item: ${entry.item_name}, Price: ₹${entry.price}`).moveDown();
+        doc.fontSize(12).text(`Date: ${date.toDateString()}, Item: ${entry.item_name}, Price: ${entry.price}`).moveDown();
       });
 
       const totalSpending = spending.reduce((total, entry) => total + entry.price, 0);
-      doc.fontSize(14).text(`Total Spending for ${yearMonth}: ₹${totalSpending}`).moveDown();
+      doc.fontSize(14).text(`Total Spending for ${yearMonth}: ${totalSpending}`).moveDown();
 
       doc.end();
 
@@ -241,6 +248,13 @@ app.get('/generate-pdf', async (req, res) => {
     console.error('Error generating PDFs:', error);
     res.status(500).send('Error generating PDFs');
   }
+});
+
+// Route to serve PDF files
+app.get('/pdf/:fileName', (req, res) => {
+  const fileName = req.params.fileName;
+  const filePath = path.join(__dirname, 'pdf', fileName);
+  res.sendFile(filePath);
 });
 
 app.listen(port, () => {
