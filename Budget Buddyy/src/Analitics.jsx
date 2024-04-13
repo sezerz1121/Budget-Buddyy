@@ -46,12 +46,8 @@ function Analitics() {
       };
 const handlePdfDownload = async () => {
     try {
-       
-        
         const downloadResponse = await axios.post("https://budget-buddyy.vercel.app/generate-pdf", {
-            params: {
-                _id: user._id,
-            },
+            _id: user._id,
         });
 
         // Extract the pdfFiles from the response data
@@ -61,27 +57,21 @@ const handlePdfDownload = async () => {
         if (pdfFiles.length > 0) {
             // Loop through each PDF file
             for (let i = 0; i < pdfFiles.length; i++) {
-                try {
-                    const downloadUrl = `https://budget-buddyy.vercel.app/pdf/${pdfFiles[i].fileName}`;
+                const downloadUrl = `https://budget-buddyy.vercel.app/pdf/${pdfFiles[i].fileName}`;
 
-                    // Create a link element
-                    const link = document.createElement('a');
-                    link.href = downloadUrl;
+                // Create a link element
+                const link = document.createElement('a');
+                link.href = downloadUrl;
 
-                    // Set the filename for the download
-                    link.setAttribute('download', pdfFiles[i].fileName);
+                // Set the filename for the download
+                link.setAttribute('download', pdfFiles[i].fileName);
 
-                    // Append the link to the document body and trigger the download
-                    document.body.appendChild(link);
-                    link.click();
+                // Append the link to the document body and trigger the download
+                document.body.appendChild(link);
+                link.click();
 
-                    // Cleanup: remove the link
-                    document.body.removeChild(link);
-                } catch (error) {
-                    console.error("Error downloading PDF:", error);
-                    alert("Failed to download PDF. Please try again later.");
-                    return; // Stop further processing if download fails
-                }
+                // Cleanup: remove the link
+                document.body.removeChild(link);
             }
 
             // Show confirmation message after all PDFs are downloaded
@@ -98,6 +88,8 @@ const handlePdfDownload = async () => {
         alert("Failed to generate or download PDFs. Please try again later.");
     }
 };
+
+
 
 
 
