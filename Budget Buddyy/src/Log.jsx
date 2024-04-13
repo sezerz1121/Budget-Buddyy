@@ -20,7 +20,7 @@ function Log() {
                     return;
                 }
 
-                const response = await axios.get("https://budget-buddyy-server.vercel.app/home", {
+                const response = await axios.get("https://budget-buddyy.vercel.app/home", {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
@@ -42,14 +42,14 @@ function Log() {
         const decoded = jwtDecode(token);
 
         try {
-            const registerResponse = await axios.post("https://budget-buddyy-server.vercel.app/register", {
+            const registerResponse = await axios.post("https://budget-buddyy.vercel.app/register", {
                 name: decoded.name,
                 email: decoded.email,
                 picture: decoded.picture,
             });
 
             if (registerResponse.data === "User created successfully") {
-                const signInResponse = await axios.post("https://budget-buddyy-server.vercel.app/signin", {
+                const signInResponse = await axios.post("https://budget-buddyy.vercel.app/signin", {
                     name: decoded.name,
                     email: decoded.email,
                 });
@@ -64,7 +64,7 @@ function Log() {
                 }
             } else if (registerResponse.data === "Email already exists") {
                 setStatusEmail("Email already exists");
-                const signInResponse = await axios.post("https://budget-buddyy-server.vercel.app/signin", {
+                const signInResponse = await axios.post("https://budget-buddyy.vercel.app/signin", {
                     name: decoded.name,
                     email: decoded.email,
                 });
