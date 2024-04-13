@@ -502,12 +502,13 @@ body
     display: flex;
     justify-content: center;
     align-items: center;
-    color: #51C4D3;
-    background-color: #132C33;
+    color: transparent;
+    background-color: transparent;
     height: 45px;
     border-radius: 15px;
     border: transparent;
     font-weight: 600;
+    
 
 }
 .button-pdf:hover
@@ -515,8 +516,8 @@ body
     display: flex;
     justify-content: center;
     align-items: center;
-    color: #132C33;
-    background-color:#51C4D3; 
+    color:transparent;
+    background-color:transparent; 
     height: 45px;
     border-radius: 15px;
     border: transparent;
