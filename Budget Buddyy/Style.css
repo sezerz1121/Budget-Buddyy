@@ -741,7 +741,51 @@ body
         margin-bottom: 50px; 
     }
 }
+.Spent-div3
+{
+    display: flex;
+    justify-content: start;
+    margin-top: 10px;
+    width: 100%;
+    justify-content: center;
+    margin-bottom: 25px;
 
+}
+.button-pdf
+{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: transparent;
+    background-color: transparent;
+    height: 45px;
+    border-radius: 15px;
+    border: transparent;
+    font-weight: 600;
+    
+
+}
+.button-pdf:hover
+{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color:transparent;
+    background-color:transparent; 
+    height: 45px;
+    border-radius: 15px;
+    border: transparent;
+    font-weight: 600;
+
+}
+.icon
+{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 16px;
+    margin-left: 6px;
+}
 
 @media (min-width: 376px) and (max-width: 420px) {
     body {
