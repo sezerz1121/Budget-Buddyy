@@ -79,9 +79,6 @@ const handlePdfDownload = async () => {
                     document.body.appendChild(link);
                     link.click();
 
-                    // Wait for the download to complete before proceeding to the next one
-                    await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for 1 second before starting the next download
-
                     // Cleanup: remove the link
                     document.body.removeChild(link);
                 } catch (error) {
@@ -105,6 +102,7 @@ const handlePdfDownload = async () => {
         alert("Failed to generate or download PDFs. Please try again later.");
     }
 };
+
 
 
 
