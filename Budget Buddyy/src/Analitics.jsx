@@ -48,7 +48,7 @@ const handlePdfDownload = async () => {
     try {
        
         
-        const downloadResponse = await axios.get("https://budget-buddyy.vercel.app/generate-pdf", {
+        const downloadResponse = await axios.post("https://budget-buddyy.vercel.app/generate-pdf", {
             params: {
                 _id: user._id,
             },
