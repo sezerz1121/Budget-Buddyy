@@ -12,14 +12,17 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
 import cloudinary from 'cloudinary';
+import dotenv from 'dotenv';
+
+
 const __filename = fileURLToPath(import.meta.url);
   
 const __dirname = path.dirname(__filename);
 
 cloudinary.config({
-  cloud_name: 'dcn7h7o7i',
-  api_key: '979221793846367',
-  api_secret: 'Zc_U7Sof9lZ2eKx93_CcpVfZvog'
+  cloud_name: process.env.cloud_name,
+  api_key: process.env.api_key,
+  api_secret: process.env.api_secret,
 });
 
 
