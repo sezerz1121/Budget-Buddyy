@@ -271,15 +271,7 @@ app.get('/pdf/:fileName', (req, res) => {
   res.sendFile(filePath);
 });
 
-    // Send the file details as response
-    res.status(200).json({ pdfFiles });
-  } catch (error) {
-    console.error('Error generating PDFs:', error);
-    res.status(500).send('Error generating PDFs');
-  }
-});
 
-// Route to serve PDF files
 
 
 app.listen(port, () => {
