@@ -192,6 +192,7 @@ app.post("/SignIn", async (req, res) => {
 
 
 
+// Your route to generate PDFs with Multer middleware
 app.post('/generate-pdf', upload.none(), async (req, res) => {
   try {
     // Fetch user's info based on their refID (_id in this case)
@@ -218,12 +219,10 @@ app.post('/generate-pdf', upload.none(), async (req, res) => {
 
     // Generate PDF for each month
     const pdfFiles = [];
-    Object.entries(monthlySpending).forEach(async ([yearMonth, spending]) => {
-      // Generate PDF
+    for (const [yearMonth, spending] of Object.entries(monthlySpending)) {
       const doc = new PDFDocument();
       const fileName = `budget_${user.name}_${yearMonth}_${Date.now()}.pdf`;
 
-      // Add user's name as title on top of each PDF
       doc.fontSize(16).text(`User: ${user.name}`, { align: 'center' }).moveDown(0.5);
 
       spending.forEach(entry => {
@@ -242,19 +241,10 @@ app.post('/generate-pdf', upload.none(), async (req, res) => {
       });
 
       // Upload the PDF to Cloudinary
-      cloudinary.uploader.upload_stream({ resource_type: 'raw' }, (error, result) => {
-        if (error) {
-          console.error('Error uploading PDF to Cloudinary:', error);
-        } else {
-          // PDF uploaded successfully, you can now access the URL from result.url
-          const pdfUrl = result.url;
-          pdfFiles.push({
-            fileName: fileName,
-            pdfUrl: pdfUrl
-          });
-        }
-      }).end(pdfBuffer);
-    });
+      const result = await cloudinary.uploader.upload(pdfBuffer, { folder: 'pdf' });
+      const pdfUrl = result.secure_url;
+      pdfFiles.push({ fileName, pdfUrl });
+    }
 
     // Send the file details as response after all PDFs are uploaded
     res.status(200).json({ pdfFiles });
@@ -263,6 +253,7 @@ app.post('/generate-pdf', upload.none(), async (req, res) => {
     res.status(500).send('Error generating PDFs');
   }
 });
+
 
 // Route to serve PDF files
 app.get('/pdf/:fileName', (req, res) => {
@@ -286,17 +277,7 @@ app.get('/pdf/:fileName', (req, res) => {
 });
 
 // Route to serve PDF files
-app.get('/pdf/:fileName', (req, res) => {
-  const fileName = req.params.fileName;
-  const filePath = path.join(__dirname, 'pdf', fileName);
 
-  // Set appropriate headers to allow CORS
-  res.setHeader('Access-Control-Allow-Origin', 'https://budget-buddyy-client.vercel.app');
-  res.setHeader('Access-Control-Allow-Methods', 'GET');
-
-  // Send the file
-  res.sendFile(filePath);
-});
 
 app.listen(port, () => {
     console.log(`Server running on port: ${port}`);
