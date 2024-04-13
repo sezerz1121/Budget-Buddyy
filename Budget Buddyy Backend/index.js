@@ -196,56 +196,68 @@ app.post("/SignIn", async (req, res) => {
 
 
 // Your route to generate PDFs with Multer middleware
-const handlePdfDownload = async () => {
-    try {
-        const downloadResponse = await axios.post("https://budget-buddyy.vercel.app/generate-pdf", {
-            _id: user._id,
-        });
+// Your route to generate PDFs with Multer middleware
+app.post('/generate-pdf', upload.none(), async (req, res) => {
+  try {
+    // Fetch user's info based on their refID (_id in this case)
+    const userRefID = req.body._id;
+    console.log(userRefID);
 
-        // Extract the pdfFiles from the response data
-        const { pdfFiles } = downloadResponse.data;
-
-        // Ensure that there is at least one PDF file in the response
-        if (pdfFiles.length > 0) {
-            // Loop through each PDF file
-            for (let i = 0; i < pdfFiles.length; i++) {
-                try {
-                    const downloadUrl = pdfFiles[i].pdfUrl;
-
-                    // Create a link element
-                    const link = document.createElement('a');
-                    link.href = downloadUrl;
-
-                    // Set the filename for the download
-                    link.setAttribute('download', pdfFiles[i].fileName);
-
-                    // Append the link to the document body and trigger the download
-                    document.body.appendChild(link);
-                    link.click();
-
-                    // Cleanup: remove the link
-                    document.body.removeChild(link);
-                } catch (error) {
-                    console.error("Error downloading PDF:", error);
-                    alert("Failed to download PDF. Please try again later.");
-                    return; // Stop further processing if download fails
-                }
-            }
-
-            // Show confirmation message after all PDFs are downloaded
-            alert("PDFs generated and downloaded successfully!");
-
-            // Redirect to Home after successful download
-            navigate('/Home'); // Assuming you have a function to navigate to the Home page
-        } else {
-            // Handle the case where no PDF files are returned
-            alert("No PDF files generated. Please try again later.");
-        }
-    } catch (error) {
-        console.error("Error:", error);
-        alert("Failed to generate or download PDFs. Please try again later.");
+    const user = await UserModel.findOne({ _id: userRefID });
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
     }
-};
+
+    const userCards = await UserBudget.find({ ref_id: userRefID });
+
+    // Organize budget data by month
+    const monthlySpending = {};
+    userCards.forEach(entry => {
+      const date = new Date(entry.datetime);
+      const yearMonth = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
+      if (!monthlySpending[yearMonth]) {
+        monthlySpending[yearMonth] = [];
+      }
+      monthlySpending[yearMonth].push(entry);
+    });
+
+    // Generate PDF for each month
+    const pdfFiles = [];
+    for (const [yearMonth, spending] of Object.entries(monthlySpending)) {
+      const doc = new PDFDocument();
+      const fileName = `budget_${user.name}_${yearMonth}_${Date.now()}.pdf`;
+
+      doc.fontSize(16).text(`User: ${user.name}`, { align: 'center' }).moveDown(0.5);
+
+      spending.forEach(entry => {
+        const date = new Date(entry.datetime);
+        doc.fontSize(12).text(`Date: ${date.toDateString()}, Item: ${entry.item_name}, Price: ${entry.price}`).moveDown();
+      });
+
+      const totalSpending = spending.reduce((total, entry) => total + entry.price, 0);
+      doc.fontSize(14).text(`Total Spending for ${yearMonth}: ${totalSpending}`).moveDown();
+
+      const pdfBuffer = await new Promise((resolve, reject) => {
+        const buffers = [];
+        doc.on('data', buffers.push.bind(buffers));
+        doc.on('end', () => resolve(Buffer.concat(buffers)));
+        doc.end();
+      });
+
+      // Upload the PDF to Cloudinary
+      const result = await cloudinary.uploader.upload(pdfBuffer, { folder: 'pdf' });
+      const pdfUrl = result.secure_url;
+      pdfFiles.push({ fileName, pdfUrl });
+    }
+
+    // Send the file details as response after all PDFs are uploaded
+    res.status(200).json({ pdfFiles });
+  } catch (error) {
+    console.error('Error generating PDFs:', error);
+    res.status(500).send('Error generating PDFs');
+  }
+});
+
 
 
 
