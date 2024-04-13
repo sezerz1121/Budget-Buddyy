@@ -741,14 +741,14 @@ body
         margin-bottom: 50px; 
     }
 }
-.Spent-div3
+   .Spent-div3
 {
     display: flex;
     justify-content: start;
-    margin-top: 10px;
+    margin-top: 0px;
     width: 100%;
     justify-content: center;
-    margin-bottom: 25px;
+    margin-bottom: 05px;
 
 }
 .button-pdf
@@ -756,13 +756,12 @@ body
     display: flex;
     justify-content: center;
     align-items: center;
-    color: transparent;
-    background-color: transparent;
-    height: 45px;
+    color: #51C4D3;
+    background-color: #132C33;
+    height: 15px;
     border-radius: 15px;
     border: transparent;
     font-weight: 600;
-    
 
 }
 .button-pdf:hover
@@ -770,8 +769,8 @@ body
     display: flex;
     justify-content: center;
     align-items: center;
-    color:transparent;
-    background-color:transparent; 
+    color: #132C33;
+    background-color:#51C4D3; 
     height: 45px;
     border-radius: 15px;
     border: transparent;
