@@ -48,7 +48,7 @@ const handlePdfDownload = async () => {
     try {
        
         
-        const downloadResponse = await axios.get("https://budget-buddyy-server.vercel.app/generate-pdf", {
+        const downloadResponse = await axios.get("https://budget-buddyy.vercel.app/generate-pdf", {
             params: {
                 _id: user._id,
             },
@@ -62,7 +62,7 @@ const handlePdfDownload = async () => {
             // Loop through each PDF file
             for (let i = 0; i < pdfFiles.length; i++) {
                 try {
-                    const downloadUrl = `https://budget-buddyy-server.vercel.app/pdf/${pdfFiles[i].fileName}`;
+                    const downloadUrl = `https://budget-buddyy.vercel.app/pdf/${pdfFiles[i].fileName}`;
 
                     // Create a link element
                     const link = document.createElement('a');
@@ -117,7 +117,7 @@ const handlePdfDownload = async () => {
               return;
             }
       
-            const response = await axios.get("https://budget-buddyy-server.vercel.app/profile", {
+            const response = await axios.get("https://budget-buddyy.vercel.app/profile", {
               headers: {
                 Authorization: `Bearer ${token}`,
               },
@@ -142,7 +142,7 @@ const handlePdfDownload = async () => {
             return;
           }
     
-          const response = await axios.get("https://budget-buddyy-server.vercel.app/Budgetcards", {
+          const response = await axios.get("https://budget-buddyy.vercel.app/Budgetcards", {
             headers: {
               Authorization: `Bearer ${token}`,
             },
