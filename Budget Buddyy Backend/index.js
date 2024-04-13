@@ -11,10 +11,18 @@ import multer from 'multer';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
-
+import cloudinary from 'cloudinary';
 const __filename = fileURLToPath(import.meta.url);
   
 const __dirname = path.dirname(__filename);
+
+cloudinary.config({
+  cloud_name: 'dcn7h7o7i',
+  api_key: '979221793846367',
+  api_secret: 'Zc_U7Sof9lZ2eKx93_CcpVfZvog'
+});
+
+
 
 const app = express();
 app.use(express.json({ limit: '10mb' }));
@@ -31,15 +39,7 @@ app.use('/pdf', express.static(path.join(__dirname, 'pdf')));
 const secretKey = '123456789';
 const port = 3000;
 // Set up Multer storage for PDFs
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'pdf/');
-  },
-  filename: function (req, file, cb) {
-    cb(null, file.fieldname + '-' + Date.now() + '.pdf');
-  }
-});
-
+const storage = multer.memoryStorage(); // Use memory storage for Multer to handle file uploads
 const upload = multer({ storage: storage });
 
 mongoose.connect("mongodb+srv://tatsam24copywriter:bWbQN7urqvswx2bU@drivewise.zgowklk.mongodb.net/?retryWrites=true&w=majority&appName=DriveWise", {
@@ -192,10 +192,10 @@ app.post("/SignIn", async (req, res) => {
 
 
 
-app.get('/generate-pdf', async (req, res) => {
+app.post('/generate-pdf', upload.none(), async (req, res) => {
   try {
     // Fetch user's info based on their refID (_id in this case)
-    const userRefID = req.query._id;
+    const userRefID = req.body._id;
     console.log(userRefID);
 
     const user = await UserModel.findOne({ _id: userRefID });
@@ -218,12 +218,10 @@ app.get('/generate-pdf', async (req, res) => {
 
     // Generate PDF for each month
     const pdfFiles = [];
-    Object.entries(monthlySpending).forEach(([yearMonth, spending]) => {
+    Object.entries(monthlySpending).forEach(async ([yearMonth, spending]) => {
       // Generate PDF
       const doc = new PDFDocument();
       const fileName = `budget_${user.name}_${yearMonth}_${Date.now()}.pdf`;
-      const filePath = path.join('pdf/', fileName);
-      doc.pipe(fs.createWriteStream(filePath));
 
       // Add user's name as title on top of each PDF
       doc.fontSize(16).text(`User: ${user.name}`, { align: 'center' }).moveDown(0.5);
@@ -236,14 +234,48 @@ app.get('/generate-pdf', async (req, res) => {
       const totalSpending = spending.reduce((total, entry) => total + entry.price, 0);
       doc.fontSize(14).text(`Total Spending for ${yearMonth}: ${totalSpending}`).moveDown();
 
-      doc.end();
-
-      // Store PDF file details
-      pdfFiles.push({
-        fileName: fileName,
-        filePath: filePath
+      const pdfBuffer = await new Promise((resolve, reject) => {
+        const buffers = [];
+        doc.on('data', buffers.push.bind(buffers));
+        doc.on('end', () => resolve(Buffer.concat(buffers)));
+        doc.end();
       });
+
+      // Upload the PDF to Cloudinary
+      cloudinary.uploader.upload_stream({ resource_type: 'raw' }, (error, result) => {
+        if (error) {
+          console.error('Error uploading PDF to Cloudinary:', error);
+        } else {
+          // PDF uploaded successfully, you can now access the URL from result.url
+          const pdfUrl = result.url;
+          pdfFiles.push({
+            fileName: fileName,
+            pdfUrl: pdfUrl
+          });
+        }
+      }).end(pdfBuffer);
     });
+
+    // Send the file details as response after all PDFs are uploaded
+    res.status(200).json({ pdfFiles });
+  } catch (error) {
+    console.error('Error generating PDFs:', error);
+    res.status(500).send('Error generating PDFs');
+  }
+});
+
+// Route to serve PDF files
+app.get('/pdf/:fileName', (req, res) => {
+  const fileName = req.params.fileName;
+  const filePath = path.join(__dirname, 'pdf', fileName);
+
+  // Set appropriate headers to allow CORS
+  res.setHeader('Access-Control-Allow-Origin', 'https://budget-buddyy-client.vercel.app');
+  res.setHeader('Access-Control-Allow-Methods', 'GET');
+
+  // Send the file
+  res.sendFile(filePath);
+});
 
     // Send the file details as response
     res.status(200).json({ pdfFiles });
