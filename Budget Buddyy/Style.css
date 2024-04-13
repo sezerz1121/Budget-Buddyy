@@ -938,6 +938,51 @@ body
     .items::-webkit-scrollbar {
         display: none;
     }
+       .Spent-div3
+{
+    display: flex;
+    justify-content: start;
+    margin-top: 0px;
+    width: 100%;
+    justify-content: center;
+    margin-bottom: 05px;
+
+}
+.button-pdf
+{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: transparent;
+    background-color: transparent;
+    height: 15px;
+    border-radius: 15px;
+    border: transparent;
+    font-weight: 600;
+    
+
+}
+.button-pdf:hover
+{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color:transparent;
+    background-color:transparent; 
+    height: 15px;
+    border-radius: 15px;
+    border: transparent;
+    font-weight: 600;
+
+}
+.icon
+{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 16px;
+    margin-left: 6px;
+}
 }
 @media (min-width: 421px) and (max-width: 430px) {
     body {
@@ -1090,6 +1135,51 @@ body
     .items::-webkit-scrollbar {
         display: none;
     }
+       .Spent-div3
+{
+    display: flex;
+    justify-content: start;
+    margin-top: 0px;
+    width: 100%;
+    justify-content: center;
+    margin-bottom: 05px;
+
+}
+.button-pdf
+{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: transparent;
+    background-color: transparent;
+    height: 15px;
+    border-radius: 15px;
+    border: transparent;
+    font-weight: 600;
+    
+
+}
+.button-pdf:hover
+{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color:transparent;
+    background-color:transparent; 
+    height: 15px;
+    border-radius: 15px;
+    border: transparent;
+    font-weight: 600;
+
+}
+.icon
+{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 16px;
+    margin-left: 6px;
+}
 }
 
 
