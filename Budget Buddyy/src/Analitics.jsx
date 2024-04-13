@@ -46,12 +46,8 @@ function Analitics() {
       };
 const handlePdfDownload = async () => {
     try {
-        const user = getCurrentUser(); // Assuming you have a function to get the current user
-        if (!user) {
-            alert("User not logged in.");
-            return;
-        }
-
+       
+        
         const downloadResponse = await axios.get("https://budget-buddyy-server.vercel.app/generate-pdf", {
             params: {
                 _id: user._id,
