@@ -195,9 +195,7 @@ app.post("/SignIn", async (req, res) => {
 
 
 
-// Your route to generate PDFs with Multer middleware
-// Your route to generate PDFs with Multer middleware
-app.post('/generate-pdf', upload.none(), async (req, res) => {
+app.post('/generate-pdf', async (req, res) => {
   try {
     // Fetch user's info based on their refID (_id in this case)
     const userRefID = req.body._id;
@@ -257,6 +255,7 @@ app.post('/generate-pdf', upload.none(), async (req, res) => {
     res.status(500).send('Error generating PDFs');
   }
 });
+
 
 
 
