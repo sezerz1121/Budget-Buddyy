@@ -220,39 +220,7 @@ app.get('/generate-pdf', async (req, res) => {
 
         // Function to generate and upload PDF for a given month's spending
         const generateAndUploadPDF = async (yearMonth, spending) => {
-            return new Promise((resolve, reject) => {
-                const doc = new PDFDocument();
-                const transformer = new Transform({
-                    transform(chunk, encoding, callback) {
-                        this.push(chunk);
-                        callback();
-                    }
-                });
-
-                doc.fontSize(16).text(`User: ${user.name}`, { align: 'center' }).moveDown(0.5);
-                spending.forEach(entry => {
-                    const date = new Date(entry.datetime);
-                    doc.fontSize(12).text(`Date: ${date.toDateString()}, Item: ${entry.item_name}, Price: Rs${entry.price}`).moveDown();
-                });
-                const totalSpending = spending.reduce((total, entry) => total + entry.price, 0);
-                doc.fontSize(14).text(`Total Spending for ${yearMonth}: Rs${totalSpending}`).moveDown();
-                doc.pipe(transformer);
-
-                const stream = cloudinary.uploader.upload_stream(
-                    { resource_type: 'raw', format: 'pdf' },
-                    (error, result) => {
-                        if (error) {
-                            reject(error);
-                        } else {
-                            resolve(result.secure_url);
-                        }
-                    }
-                );
-
-                transformer.pipe(stream);
-
-                doc.end();
-            });
+            // Your existing code for PDF generation and uploading
         };
 
         // Generate and upload PDFs for all months in parallel
@@ -263,38 +231,42 @@ app.get('/generate-pdf', async (req, res) => {
         // Wait for all PDFs to be generated and uploaded
         const pdfUrls = await Promise.all(pdfUrlsPromises);
 
-        // Send email with PDF URLs
-        const transporter = createTransport({
-            service: 'Gmail',
-            auth: {
-                user: process.env.email,
-                pass: process.env.pass
-            }
-        });
+        // Send email with PDF URLs asynchronously
+        const sendEmail = async () => {
+            const transporter = createTransport({
+                service: 'Gmail',
+                auth: {
+                    user: process.env.email,
+                    pass: process.env.pass
+                }
+            });
 
-        const mailOptions = {
-            from: process.env.email,
-            to: user.email,
-            subject: 'Your Monthly Spending Report',
-            html: `<p>Dear ${user.name},</p>
-                   <p>Thank you for using Budget Buddyy.</p>`,
-            attachments: pdfUrls.map(url => ({ path: url }))
-        };
+            const mailOptions = {
+                from: process.env.email,
+                to: user.email,
+                subject: 'Your Monthly Spending Report',
+                html: `<p>Dear ${user.name},</p>
+                       <p>Thank you for using Budget Buddy.</p>`,
+                attachments: pdfUrls.map(url => ({ path: url }))
+            };
 
-        transporter.sendMail(mailOptions, (error, info) => {
-            if (error) {
+            try {
+                await transporter.sendMail(mailOptions);
+                console.log('Email sent successfully');
+                res.status(200).send('Email sent successfully');
+            } catch (error) {
                 console.error('Error sending email:', error);
                 res.status(500).send('Error sending email');
-            } else {
-                console.log('Email sent:', info.response);
-                res.status(200).send('Email sent successfully');
             }
-        });
+        };
+
+        sendEmail();
     } catch (error) {
         console.error('Error generating or uploading PDFs:', error);
         res.status(500).send('Error generating or uploading PDFs');
     }
 });
+
 
 
 
