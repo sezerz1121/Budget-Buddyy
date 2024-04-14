@@ -215,12 +215,11 @@ app.get('/generate-pdf', async (req, res) => {
 
         const pdfFileUrls = [];
 
-        const generateAndUploadPDFs = async () => {
-            const pdfBuffers = [];
-            const promises = [];
-
-            for (const [yearMonth, spending] of Object.entries(monthlySpending)) {
+        const generateAndUploadPDF = async (yearMonth, spending) => {
+            return new Promise((resolve, reject) => {
                 const doc = new PDFDocument();
+                const buffers = [];
+
                 doc.fontSize(16).text(`User: ${user.name}`, { align: 'center' }).moveDown(0.5);
 
                 spending.forEach(entry => {
@@ -231,41 +230,42 @@ app.get('/generate-pdf', async (req, res) => {
                 const totalSpending = spending.reduce((total, entry) => total + entry.price, 0);
                 doc.fontSize(14).text(`Total Spending for ${yearMonth}: Rs${totalSpending}`).moveDown();
 
-                const pdfBufferPromise = new Promise((resolve, reject) => {
-                    const buffers = [];
-                    doc.on('data', buffers.push.bind(buffers));
-                    doc.on('end', () => {
-                        const pdfBuffer = Buffer.concat(buffers);
-                        resolve(pdfBuffer);
-                    });
-                    doc.end();
-                });
-                pdfBuffers.push(pdfBufferPromise);
-            }
-
-            const resolvedBuffers = await Promise.all(pdfBuffers);
-
-            const pdfUploadPromise = cloudinary.uploader.upload_stream(
-                { resource_type: 'raw', format: 'pdf' }, 
-                (error, result) => {
-                    if (error) {
-                        console.error('Error uploading PDF to Cloudinary:', error);
-                        res.status(500).send('Error uploading PDF to Cloudinary');
-                    } else {
-                        pdfFileUrls.push(result.secure_url);
-                        if (pdfFileUrls.length === Object.keys(monthlySpending).length) {
-                            res.status(200).json({ pdfFileUrls });
-                        }
+                doc.on('data', buffers.push.bind(buffers));
+                doc.on('end', async () => {
+                    const pdfBuffer = Buffer.concat(buffers);
+                    try {
+                        const result = await cloudinary.uploader.upload_stream(
+                            { resource_type: 'raw', format: 'pdf' }, 
+                            (error, result) => {
+                                if (error) {
+                                    reject(error);
+                                } else {
+                                    resolve(result.secure_url);
+                                }
+                            }
+                        );
+                        result.write(pdfBuffer);
+                        result.end();
+                    } catch (error) {
+                        reject(error);
                     }
-                }
-            );
-
-            resolvedBuffers.forEach(buffer => pdfUploadPromise.write(buffer));
-            pdfUploadPromise.end();
+                });
+                doc.end();
+            });
         };
 
-        // Run the PDF generation and upload asynchronously
-        generateAndUploadPDFs();
+        for (const [yearMonth, spending] of Object.entries(monthlySpending)) {
+            try {
+                const pdfUrl = await generateAndUploadPDF(yearMonth, spending);
+                pdfFileUrls.push(pdfUrl);
+            } catch (error) {
+                console.error('Error generating or uploading PDF:', error);
+                return res.status(500).send('Error generating or uploading PDF');
+            }
+        }
+
+        res.status(200).json({ pdfFileUrls });
+
     } catch (error) {
         console.error('Error generating PDFs:', error);
         res.status(500).send('Error generating PDFs');
