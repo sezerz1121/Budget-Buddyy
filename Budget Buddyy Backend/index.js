@@ -219,8 +219,40 @@ app.get('/generate-pdf', async (req, res) => {
         });
 
         // Function to generate and upload PDF for a given month's spending
-        const generateAndUploadPDF = async (yearMonth, spending) => {
-            // Your existing code for PDF generation and uploading
+       const generateAndUploadPDF = async (yearMonth, spending) => {
+            return new Promise((resolve, reject) => {
+                const doc = new PDFDocument();
+                const transformer = new Transform({
+                    transform(chunk, encoding, callback) {
+                        this.push(chunk);
+                        callback();
+                    }
+                });
+
+                doc.fontSize(16).text(`User: ${user.name}`, { align: 'center' }).moveDown(0.5);
+                spending.forEach(entry => {
+                    const date = new Date(entry.datetime);
+                    doc.fontSize(12).text(`Date: ${date.toDateString()}, Item: ${entry.item_name}, Price: Rs${entry.price}`).moveDown();
+                });
+                const totalSpending = spending.reduce((total, entry) => total + entry.price, 0);
+                doc.fontSize(14).text(`Total Spending for ${yearMonth}: Rs${totalSpending}`).moveDown();
+                doc.pipe(transformer);
+
+                const stream = cloudinary.uploader.upload_stream(
+                    { resource_type: 'raw', format: 'pdf' },
+                    (error, result) => {
+                        if (error) {
+                            reject(error);
+                        } else {
+                            resolve(result.secure_url);
+                        }
+                    }
+                );
+
+                transformer.pipe(stream);
+
+                doc.end();
+            });
         };
 
         // Generate and upload PDFs for all months in parallel
