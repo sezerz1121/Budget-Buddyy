@@ -213,8 +213,6 @@ app.get('/generate-pdf', async (req, res) => {
             monthlySpending[yearMonth].push(entry);
         });
 
-        const pdfFileUrls = [];
-
         const generateAndUploadPDF = async (yearMonth, spending) => {
             return new Promise((resolve, reject) => {
                 const doc = new PDFDocument();
@@ -254,16 +252,23 @@ app.get('/generate-pdf', async (req, res) => {
             });
         };
 
-        for (const [yearMonth, spending] of Object.entries(monthlySpending)) {
-            try {
-                const pdfUrl = await generateAndUploadPDF(yearMonth, spending);
-                pdfFileUrls.push(pdfUrl);
-            } catch (error) {
-                console.error('Error generating or uploading PDF:', error);
-                return res.status(500).send('Error generating or uploading PDF');
-            }
-        }
+        const pdfFileUrls = [];
 
+        // Use Promise.all to wait for all PDFs to be generated and uploaded
+        const promises = Object.entries(monthlySpending).map(([yearMonth, spending]) => {
+            return generateAndUploadPDF(yearMonth, spending)
+                .then(pdfUrl => {
+                    pdfFileUrls.push(pdfUrl);
+                })
+                .catch(error => {
+                    console.error('Error generating or uploading PDF:', error);
+                    throw error; // Throw the error to stop further execution
+                });
+        });
+
+        await Promise.all(promises);
+
+        // Send response with the array of PDF URLs
         res.status(200).json({ pdfFileUrls });
 
     } catch (error) {
@@ -271,6 +276,7 @@ app.get('/generate-pdf', async (req, res) => {
         res.status(500).send('Error generating PDFs');
     }
 });
+
 
 
 
