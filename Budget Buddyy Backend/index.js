@@ -197,67 +197,70 @@ app.post("/SignIn", async (req, res) => {
 
 app.get('/generate-pdf', async (req, res) => {
     try {
-      const userRefID = req.query._id;
-  
-      const userCards = await UserBudget.find({ ref_id: userRefID });
-  
-      const user = await UserModel.findOne({ _id: userRefID });
-  
-      const monthlySpending = {};
-      userCards.forEach(entry => {
-        const date = new Date(entry.datetime);
-        const yearMonth = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
-        if (!monthlySpending[yearMonth]) {
-          monthlySpending[yearMonth] = [];
-        }
-        monthlySpending[yearMonth].push(entry);
-      });
-  
-      const pdfFileUrls = [];
-  
-      for (const [yearMonth, spending] of Object.entries(monthlySpending)) {
-        const doc = new PDFDocument();
-  
-        doc.fontSize(16).text(`User: ${user.name}`, { align: 'center' }).moveDown(0.5);
-  
-        spending.forEach(entry => {
-          const date = new Date(entry.datetime);
-          doc.fontSize(12).text(`Date: ${date.toDateString()}, Item: ${entry.item_name}, Price: Rs${entry.price}`).moveDown();
-        });
-  
-        const totalSpending = spending.reduce((total, entry) => total + entry.price, 0);
-        doc.fontSize(14).text(`Total Spending for ${yearMonth}: Rs${totalSpending}`).moveDown();
-  
-        const pdfBuffer = await new Promise((resolve, reject) => {
-          const buffers = [];
-          doc.on('data', buffers.push.bind(buffers));
-          doc.on('end', () => {
-            resolve(Buffer.concat(buffers));
-          });
-          doc.end();
-        });
-  
-        const result = await cloudinary.uploader.upload_stream({
-          resource_type: 'raw',
-          format: 'pdf', // Specify the format as PDF
-        }, (error, result) => {
-          if (error) {
-            console.error('Error uploading PDF to Cloudinary:', error);
-            res.status(500).send('Error uploading PDF to Cloudinary');
-          } else {
-            pdfFileUrls.push(result.secure_url);
-            if (pdfFileUrls.length === Object.keys(monthlySpending).length) {
-              res.status(200).json({ pdfFileUrls });
-            }
-          }
-        }).end(pdfBuffer);
-      }
-    } catch (error) {
-      console.error('Error generating PDFs:', error);
-      res.status(500).send('Error generating PDFs');
-    }
-  });
+        const userRefID = req.query._id;
 
+        const userCards = await UserBudget.find({ ref_id: userRefID });
+        const user = await UserModel.findOne({ _id: userRefID });
+
+        const monthlySpending = {};
+
+        userCards.forEach(entry => {
+            const date = new Date(entry.datetime);
+            const yearMonth = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
+            if (!monthlySpending[yearMonth]) {
+                monthlySpending[yearMonth] = [];
+            }
+            monthlySpending[yearMonth].push(entry);
+        });
+
+        const pdfFileUrls = [];
+
+        const generateAndUploadPDFs = async () => {
+            for (const [yearMonth, spending] of Object.entries(monthlySpending)) {
+                const doc = new PDFDocument();
+                doc.fontSize(16).text(`User: ${user.name}`, { align: 'center' }).moveDown(0.5);
+
+                spending.forEach(entry => {
+                    const date = new Date(entry.datetime);
+                    doc.fontSize(12).text(`Date: ${date.toDateString()}, Item: ${entry.item_name}, Price: Rs${entry.price}`).moveDown();
+                });
+
+                const totalSpending = spending.reduce((total, entry) => total + entry.price, 0);
+                doc.fontSize(14).text(`Total Spending for ${yearMonth}: Rs${totalSpending}`).moveDown();
+
+                const pdfBuffer = await new Promise((resolve, reject) => {
+                    const buffers = [];
+                    doc.on('data', buffers.push.bind(buffers));
+                    doc.on('end', () => {
+                        resolve(Buffer.concat(buffers));
+                    });
+                    doc.end();
+                });
+
+                const result = await cloudinary.uploader.upload_stream({
+                    resource_type: 'raw',
+                    format: 'pdf', // Specify the format as PDF
+                }, (error, result) => {
+                    if (error) {
+                        console.error('Error uploading PDF to Cloudinary:', error);
+                        res.status(500).send('Error uploading PDF to Cloudinary');
+                    } else {
+                        pdfFileUrls.push(result.secure_url);
+                        if (pdfFileUrls.length === Object.keys(monthlySpending).length) {
+                            res.status(200).json({ pdfFileUrls });
+                        }
+                    }
+                }).end(pdfBuffer);
+            }
+        };
+
+        // Run the PDF generation and upload asynchronously
+        generateAndUploadPDFs();
+    } catch (error) {
+        console.error('Error generating PDFs:', error);
+        res.status(500).send('Error generating PDFs');
+    }
+});
 
 
 
