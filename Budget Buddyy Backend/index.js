@@ -197,7 +197,7 @@ app.post("/SignIn", async (req, res) => {
 
 app.get('/generate-pdf', async (req, res) => {
     try {
-      const userRefID =  req.query._id;
+      const userRefID = req.query._id;
   
       const userCards = await UserBudget.find({ ref_id: userRefID });
   
@@ -228,27 +228,29 @@ app.get('/generate-pdf', async (req, res) => {
         const totalSpending = spending.reduce((total, entry) => total + entry.price, 0);
         doc.fontSize(14).text(`Total Spending for ${yearMonth}: Rs${totalSpending}`).moveDown();
   
-        const stream = doc.pipe(
-          cloudinary.uploader.upload_stream(
-            {
-              resource_type: 'raw',
-              format: 'pdf' // Specify the format as PDF
-            },
-            (error, result) => {
-              if (error) {
-                console.error('Error uploading PDF to Cloudinary:', error);
-                res.status(500).send('Error uploading PDF to Cloudinary');
-              } else {
-                pdfFileUrls.push(result.secure_url);
-                if (pdfFileUrls.length === Object.keys(monthlySpending).length) {
-                  res.status(200).json({ pdfFileUrls });
-                }
-              }
-            }
-          )
-        );
+        const pdfBuffer = await new Promise((resolve, reject) => {
+          const buffers = [];
+          doc.on('data', buffers.push.bind(buffers));
+          doc.on('end', () => {
+            resolve(Buffer.concat(buffers));
+          });
+          doc.end();
+        });
   
-        doc.end();
+        const result = await cloudinary.uploader.upload_stream({
+          resource_type: 'raw',
+          format: 'pdf', // Specify the format as PDF
+        }, (error, result) => {
+          if (error) {
+            console.error('Error uploading PDF to Cloudinary:', error);
+            res.status(500).send('Error uploading PDF to Cloudinary');
+          } else {
+            pdfFileUrls.push(result.secure_url);
+            if (pdfFileUrls.length === Object.keys(monthlySpending).length) {
+              res.status(200).json({ pdfFileUrls });
+            }
+          }
+        }).end(pdfBuffer);
       }
     } catch (error) {
       console.error('Error generating PDFs:', error);
