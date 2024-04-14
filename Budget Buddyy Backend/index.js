@@ -14,6 +14,7 @@ import fs from 'fs';
 import cloudinary from 'cloudinary';
 import dotenv from 'dotenv';
 import { Transform } from 'stream';
+import { createTransport } from 'nodemailer';
 dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
@@ -262,8 +263,33 @@ app.get('/generate-pdf', async (req, res) => {
         // Wait for all PDFs to be generated and uploaded
         const pdfUrls = await Promise.all(pdfUrlsPromises);
 
-        // Send response with the array of PDF URLs
-        res.status(200).json({ pdfUrls });
+        // Send email with PDF URLs
+        const transporter = createTransport({
+            service: 'Gmail',
+            auth: {
+                user: process.env.email,
+                pass: process.env.pass
+            }
+        });
+
+        const mailOptions = {
+            from: process.env.email,
+            to: user.email,
+            subject: 'Your Monthly Spending Report',
+            html: `<p>Dear ${user.name},</p>
+                   <p>Thank you for using Budget Buddyy.</p>`,
+            attachments: pdfUrls.map(url => ({ path: url }))
+        };
+
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                console.error('Error sending email:', error);
+                res.status(500).send('Error sending email');
+            } else {
+                console.log('Email sent:', info.response);
+                res.status(200).send('Email sent successfully');
+            }
+        });
     } catch (error) {
         console.error('Error generating or uploading PDFs:', error);
         res.status(500).send('Error generating or uploading PDFs');
