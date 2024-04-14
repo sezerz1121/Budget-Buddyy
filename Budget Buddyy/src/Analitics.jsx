@@ -44,50 +44,48 @@ function Analitics() {
         
         navigate('/');
       };
-const handlePdfDownload = async () => {
-    try {
-        const downloadResponse = await axios.post("https://budget-buddyy.vercel.app/generate-pdf", {
-            _id: user._id,
-        });
-
-        // Extract the pdfFiles from the response data
-        const { pdfFiles } = downloadResponse.data;
-
-        // Ensure that there is at least one PDF file in the response
-        if (pdfFiles.length > 0) {
-            // Loop through each PDF file
-            for (let i = 0; i < pdfFiles.length; i++) {
-                const downloadUrl = `https://budget-buddyy.vercel.app/pdf/${pdfFiles[i].fileName}`;
-
+const handle_pdf = async () => {
+        try {
+            const registerResponse = await axios.get("https://budget-buddyy.vercel.app/generate-pdf", {
+                params: {
+                    _id: user._id,
+                },
+            });
+    
+            // Extract the PDF file URLs from the response data
+            const { pdfFileUrls } = registerResponse.data;
+    
+            // Ensure that there is at least one PDF file URL in the response
+            if (pdfFileUrls.length > 0) {
+                // Get the first PDF file URL (assuming there's only one PDF generated)
+                const pdfFileUrl = pdfFileUrls[0];
+    
                 // Create a link element
                 const link = document.createElement('a');
-                link.href = downloadUrl;
-
-                // Set the filename for the download
-                link.setAttribute('download', pdfFiles[i].fileName);
-
+                link.href = pdfFileUrl;
+                link.setAttribute('download', 'generated_pdf.pdf'); // Set the filename for the download
+    
                 // Append the link to the document body and trigger the download
                 document.body.appendChild(link);
                 link.click();
-
+    
                 // Cleanup: remove the link
                 document.body.removeChild(link);
+    
+                // Show confirmation message
+                alert("PDF generated and downloaded successfully!");
+    
+                // Redirect to Home after successful download
+                navigate('/Home');
+            } else {
+                // Handle the case where no PDF file URL is returned
+                alert("No PDF file generated. Please try again later.");
             }
-
-            // Show confirmation message after all PDFs are downloaded
-            alert("PDFs generated and downloaded successfully!");
-
-            // Redirect to Home after successful download
-            navigate('/Home'); // Assuming you have a function to navigate to the Home page
-        } else {
-            // Handle the case where no PDF files are returned
-            alert("No PDF files generated. Please try again later.");
+        } catch (error) {
+            console.error("Error:", error);
+            alert("Failed to generate or download PDF. Please try again later.");
         }
-    } catch (error) {
-        console.error("Error:", error);
-        alert("Failed to generate or download PDFs. Please try again later.");
-    }
-};
+    };
 
 
 
@@ -194,7 +192,7 @@ const handlePdfDownload = async () => {
               />
             )}
     </div>
-    <div className='Spent-div3'><button  className='button-pdf'>Download Expenses Pdf <div className='icon'><FaRegFilePdf /></div></button></div>
+    <div className='Spent-div3'><button onClick={handle_pdf} className='button-pdf'>Download Expenses Pdf <div className='icon'><FaRegFilePdf /></div></button></div>
     <div className='Title-item'><div><p className='Spent-item'>Today</p></div><div><p className='Spent-item-price'>₹-{totalToday}</p></div></div>
     
     <div className='items' style={{ overflowY: 'auto' }}>
