@@ -502,13 +502,12 @@ body
     display: flex;
     justify-content: center;
     align-items: center;
-    color: transparent;
-    background-color: transparent;
+    color: #51C4D3;
+    background-color: #132C33;
     height: 45px;
     border-radius: 15px;
     border: transparent;
     font-weight: 600;
-    
 
 }
 .button-pdf:hover
@@ -516,8 +515,8 @@ body
     display: flex;
     justify-content: center;
     align-items: center;
-    color:transparent;
-    background-color:transparent; 
+    color: #132C33;
+    background-color:#51C4D3; 
     height: 45px;
     border-radius: 15px;
     border: transparent;
@@ -532,6 +531,7 @@ body
     font-size: 16px;
     margin-left: 6px;
 }
+
 @media (min-width: 320px) and (max-width: 375px) {
     body {
         background-color: lightgreen;
@@ -740,15 +740,14 @@ body
         align-items: center;
         margin-bottom: 50px; 
     }
-}
-   .Spent-div3
+    .Spent-div3
 {
     display: flex;
     justify-content: start;
-    margin-top: 0px;
+    margin-top: 20px;
     width: 100%;
     justify-content: center;
-    margin-bottom: 05px;
+    margin-bottom: 25px;
 
 }
 .button-pdf
@@ -756,13 +755,12 @@ body
     display: flex;
     justify-content: center;
     align-items: center;
-    color: transparent;
-    background-color: transparent;
-    height: 15px;
+    color: #51C4D3;
+    background-color: #132C33;
+    height: 45px;
     border-radius: 15px;
     border: transparent;
     font-weight: 600;
-    
 
 }
 .button-pdf:hover
@@ -770,9 +768,9 @@ body
     display: flex;
     justify-content: center;
     align-items: center;
-    color:transparent;
-    background-color:transparent; 
-    height: 15px;
+    color: #132C33;
+    background-color:#51C4D3; 
+    height: 45px;
     border-radius: 15px;
     border: transparent;
     font-weight: 600;
@@ -786,7 +784,20 @@ body
     font-size: 16px;
     margin-left: 6px;
 }
+.items
+    {
+        width: 385px;
+        height: 85px;
+        margin-left:25px ;
+        margin-right: 25px;
+        overflow: hidden;
+    }
+    .items::-webkit-scrollbar {
+        display: none;
+    }
+ 
 }
+
 @media (min-width: 376px) and (max-width: 420px) {
     body {
         background-color: lightgreen;
@@ -930,7 +941,7 @@ body
     .items
     {
         width: 385px;
-        height: 400px;
+        height: 280px;
         margin-left:25px ;
         margin-right: 25px;
         overflow: hidden;
@@ -938,51 +949,6 @@ body
     .items::-webkit-scrollbar {
         display: none;
     }
-       .Spent-div3
-{
-    display: flex;
-    justify-content: start;
-    margin-top: 0px;
-    width: 100%;
-    justify-content: center;
-    margin-bottom: 05px;
-
-}
-.button-pdf
-{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: transparent;
-    background-color: transparent;
-    height: 15px;
-    border-radius: 15px;
-    border: transparent;
-    font-weight: 600;
-    
-
-}
-.button-pdf:hover
-{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color:transparent;
-    background-color:transparent; 
-    height: 15px;
-    border-radius: 15px;
-    border: transparent;
-    font-weight: 600;
-
-}
-.icon
-{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 16px;
-    margin-left: 6px;
-}
 }
 @media (min-width: 421px) and (max-width: 430px) {
     body {
@@ -1127,7 +1093,7 @@ body
     .items
     {
         width: 385px;
-        height: 400px;
+        height: 300px;
         margin-left:25px ;
         margin-right: 25px;
         overflow: hidden;
@@ -1135,51 +1101,8 @@ body
     .items::-webkit-scrollbar {
         display: none;
     }
-       .Spent-div3
-{
-    display: flex;
-    justify-content: start;
-    margin-top: 0px;
-    width: 100%;
-    justify-content: center;
-    margin-bottom: 05px;
+}
 
-}
-.button-pdf
-{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color: transparent;
-    background-color: transparent;
-    height: 15px;
-    border-radius: 15px;
-    border: transparent;
-    font-weight: 600;
-    
-
-}
-.button-pdf:hover
-{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    color:transparent;
-    background-color:transparent; 
-    height: 15px;
-    border-radius: 15px;
-    border: transparent;
-    font-weight: 600;
-
-}
-.icon
-{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 16px;
-    margin-left: 6px;
-}
 }
 
 
