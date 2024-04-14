@@ -216,6 +216,9 @@ app.get('/generate-pdf', async (req, res) => {
         const pdfFileUrls = [];
 
         const generateAndUploadPDFs = async () => {
+            const pdfBuffers = [];
+            const promises = [];
+
             for (const [yearMonth, spending] of Object.entries(monthlySpending)) {
                 const doc = new PDFDocument();
                 doc.fontSize(16).text(`User: ${user.name}`, { align: 'center' }).moveDown(0.5);
@@ -228,19 +231,23 @@ app.get('/generate-pdf', async (req, res) => {
                 const totalSpending = spending.reduce((total, entry) => total + entry.price, 0);
                 doc.fontSize(14).text(`Total Spending for ${yearMonth}: Rs${totalSpending}`).moveDown();
 
-                const pdfBuffer = await new Promise((resolve, reject) => {
+                const pdfBufferPromise = new Promise((resolve, reject) => {
                     const buffers = [];
                     doc.on('data', buffers.push.bind(buffers));
                     doc.on('end', () => {
-                        resolve(Buffer.concat(buffers));
+                        const pdfBuffer = Buffer.concat(buffers);
+                        resolve(pdfBuffer);
                     });
                     doc.end();
                 });
+                pdfBuffers.push(pdfBufferPromise);
+            }
 
-                const result = await cloudinary.uploader.upload_stream({
-                    resource_type: 'raw',
-                    format: 'pdf', // Specify the format as PDF
-                }, (error, result) => {
+            const resolvedBuffers = await Promise.all(pdfBuffers);
+
+            const pdfUploadPromise = cloudinary.uploader.upload_stream(
+                { resource_type: 'raw', format: 'pdf' }, 
+                (error, result) => {
                     if (error) {
                         console.error('Error uploading PDF to Cloudinary:', error);
                         res.status(500).send('Error uploading PDF to Cloudinary');
@@ -250,8 +257,11 @@ app.get('/generate-pdf', async (req, res) => {
                             res.status(200).json({ pdfFileUrls });
                         }
                     }
-                }).end(pdfBuffer);
-            }
+                }
+            );
+
+            resolvedBuffers.forEach(buffer => pdfUploadPromise.write(buffer));
+            pdfUploadPromise.end();
         };
 
         // Run the PDF generation and upload asynchronously
@@ -261,6 +271,7 @@ app.get('/generate-pdf', async (req, res) => {
         res.status(500).send('Error generating PDFs');
     }
 });
+
 
 
 
