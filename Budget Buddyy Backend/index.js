@@ -195,83 +195,66 @@ app.post("/SignIn", async (req, res) => {
 
 
 
-app.post('/generate-pdf', async (req, res) => {
-  try {
-    // Fetch user's info based on their refID (_id in this case)
-    const userRefID = req.body._id;
-    console.log(userRefID);
-
-    const user = await UserModel.findOne({ _id: userRefID });
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-
-    const userCards = await UserBudget.find({ ref_id: userRefID });
-
-    // Organize budget data by month
-    const monthlySpending = {};
-    userCards.forEach(entry => {
-      const date = new Date(entry.datetime);
-      const yearMonth = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
-      if (!monthlySpending[yearMonth]) {
-        monthlySpending[yearMonth] = [];
-      }
-      monthlySpending[yearMonth].push(entry);
-    });
-
-    // Generate PDF for each month
-    const pdfFiles = [];
-    for (const [yearMonth, spending] of Object.entries(monthlySpending)) {
-      const doc = new PDFDocument();
-      const fileName = `budget_${user.name}_${yearMonth}_${Date.now()}.pdf`;
-
-      doc.fontSize(16).text(`User: ${user.name}`, { align: 'center' }).moveDown(0.5);
-
-      spending.forEach(entry => {
+app.get('/generate-pdf', async (req, res) => {
+    try {
+      const userRefID =  req.query._id;
+  
+      const userCards = await UserBudget.find({ ref_id: userRefID });
+  
+      const user = await UserModel.findOne({ _id: userRefID });
+  
+      const monthlySpending = {};
+      userCards.forEach(entry => {
         const date = new Date(entry.datetime);
-        doc.fontSize(12).text(`Date: ${date.toDateString()}, Item: ${entry.item_name}, Price: ${entry.price}`).moveDown();
+        const yearMonth = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
+        if (!monthlySpending[yearMonth]) {
+          monthlySpending[yearMonth] = [];
+        }
+        monthlySpending[yearMonth].push(entry);
       });
-
-      const totalSpending = spending.reduce((total, entry) => total + entry.price, 0);
-      doc.fontSize(14).text(`Total Spending for ${yearMonth}: ${totalSpending}`).moveDown();
-
-      const pdfBuffer = await new Promise((resolve, reject) => {
-        const buffers = [];
-        doc.on('data', buffers.push.bind(buffers));
-        doc.on('end', () => resolve(Buffer.concat(buffers)));
+  
+      const pdfFileUrls = [];
+  
+      for (const [yearMonth, spending] of Object.entries(monthlySpending)) {
+        const doc = new PDFDocument();
+  
+        doc.fontSize(16).text(`User: ${user.name}`, { align: 'center' }).moveDown(0.5);
+  
+        spending.forEach(entry => {
+          const date = new Date(entry.datetime);
+          doc.fontSize(12).text(`Date: ${date.toDateString()}, Item: ${entry.item_name}, Price: Rs${entry.price}`).moveDown();
+        });
+  
+        const totalSpending = spending.reduce((total, entry) => total + entry.price, 0);
+        doc.fontSize(14).text(`Total Spending for ${yearMonth}: Rs${totalSpending}`).moveDown();
+  
+        const stream = doc.pipe(
+          cloudinary.uploader.upload_stream(
+            {
+              resource_type: 'raw',
+              format: 'pdf' // Specify the format as PDF
+            },
+            (error, result) => {
+              if (error) {
+                console.error('Error uploading PDF to Cloudinary:', error);
+                res.status(500).send('Error uploading PDF to Cloudinary');
+              } else {
+                pdfFileUrls.push(result.secure_url);
+                if (pdfFileUrls.length === Object.keys(monthlySpending).length) {
+                  res.status(200).json({ pdfFileUrls });
+                }
+              }
+            }
+          )
+        );
+  
         doc.end();
-      });
-
-      // Upload the PDF to Cloudinary
-      const result = await cloudinary.uploader.upload(pdfBuffer, { folder: 'pdf' });
-      const pdfUrl = result.secure_url;
-      pdfFiles.push({ fileName, pdfUrl });
+      }
+    } catch (error) {
+      console.error('Error generating PDFs:', error);
+      res.status(500).send('Error generating PDFs');
     }
-
-    // Send the file details as response after all PDFs are uploaded
-    res.status(200).json({ pdfFiles });
-  } catch (error) {
-    console.error('Error generating PDFs:', error);
-    res.status(500).send('Error generating PDFs');
-  }
-});
-
-
-
-
-
-// Route to serve PDF files
-app.get('/pdf/:fileName', (req, res) => {
-  const fileName = req.params.fileName;
-  const filePath = path.join(__dirname, 'pdf', fileName);
-
-  // Set appropriate headers to allow CORS
-  res.setHeader('Access-Control-Allow-Origin', 'https://budget-buddyy-client.vercel.app');
-  res.setHeader('Access-Control-Allow-Methods', 'GET');
-
-  // Send the file
-  res.sendFile(filePath);
-});
+  });
 
 
 
