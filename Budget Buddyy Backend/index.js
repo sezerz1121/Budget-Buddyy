@@ -15,6 +15,7 @@ import cloudinary from 'cloudinary';
 import dotenv from 'dotenv';
 import { Transform } from 'stream';
 import { createTransport } from 'nodemailer';
+import UserPdf from "./Userpdf.js";
 dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
@@ -197,7 +198,7 @@ app.post("/SignIn", async (req, res) => {
 
 
 
-app.get('/generate-pdf', async (req, res) => {
+  app.get('/generate-pdf', async (req, res) => {
     try {
         const userRefID = req.query._id;
 
@@ -219,7 +220,7 @@ app.get('/generate-pdf', async (req, res) => {
         });
 
         // Function to generate and upload PDF for a given month's spending
-       const generateAndUploadPDF = async (yearMonth, spending) => {
+        const generateAndUploadPDF = async (yearMonth, spending) => {
             return new Promise((resolve, reject) => {
                 const doc = new PDFDocument();
                 const transformer = new Transform({
@@ -238,19 +239,27 @@ app.get('/generate-pdf', async (req, res) => {
                 doc.fontSize(14).text(`Total Spending for ${yearMonth}: Rs${totalSpending}`).moveDown();
                 doc.pipe(transformer);
 
-                const stream = cloudinary.uploader.upload_stream(
-                    { resource_type: 'raw', format: 'pdf' },
-                    (error, result) => {
-                        if (error) {
-                            reject(error);
-                        } else {
-                            resolve(result.secure_url);
-                        }
+                const buffers = [];
+                transformer.on('data', buffers.push.bind(buffers));
+                transformer.on('end', async () => {
+                    const pdfBuffer = Buffer.concat(buffers);
+                    try {
+                        const result = await cloudinary.uploader.upload_stream(
+                            { resource_type: 'raw', format: 'pdf' },
+                            (error, result) => {
+                                if (error) {
+                                    reject(error);
+                                } else {
+                                    resolve(result.secure_url);
+                                }
+                            }
+                        );
+                        result.write(pdfBuffer);
+                        result.end();
+                    } catch (error) {
+                        reject(error);
                     }
-                );
-
-                transformer.pipe(stream);
-
+                });
                 doc.end();
             });
         };
@@ -263,41 +272,21 @@ app.get('/generate-pdf', async (req, res) => {
         // Wait for all PDFs to be generated and uploaded
         const pdfUrls = await Promise.all(pdfUrlsPromises);
 
-        // Send email with PDF URLs asynchronously
-        const sendEmail = async () => {
-            const transporter = createTransport({
-                service: 'Gmail',
-                auth: {
-                    user: process.env.email,
-                    pass: process.env.pass
-                }
-            });
+        // Store PDF links in the database
+        const pdfDocuments = pdfUrls.map(url => ({
+            ref_id: userRefID,
+            time: new Date().toISOString(),
+            link: url
+        }));
+        await UserPdf.create(pdfDocuments);
 
-            const mailOptions = {
-                from: process.env.email,
-                to: user.email,
-                subject: 'Your Monthly Spending Report',
-                html: `<p>Dear ${user.name},</p>
-                       <p>Thank you for using Budget Buddy.</p>`,
-                attachments: pdfUrls.map(url => ({ path: url }))
-            };
-
-            try {
-                await transporter.sendMail(mailOptions);
-                console.log('Email sent successfully');
-                res.status(200).send('Email sent successfully');
-            } catch (error) {
-                console.error('Error sending email:', error);
-                res.status(500).send('Error sending email');
-            }
-        };
-
-        sendEmail();
+        res.status(200).send('PDFs generated and stored successfully');
     } catch (error) {
         console.error('Error generating or uploading PDFs:', error);
         res.status(500).send('Error generating or uploading PDFs');
     }
 });
+
 
 
 
