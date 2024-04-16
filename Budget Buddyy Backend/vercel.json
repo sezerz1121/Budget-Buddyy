@@ -4,7 +4,6 @@
     { "src": "./index.js", "use": "@vercel/node" }
   ],
   "routes": [
-    { "src": "/generate-pdf", "dest": "/index.js" }, // Add specific route for generating PDF
     { "src": "/(.*)", "dest": "/" }
   ]
 }
