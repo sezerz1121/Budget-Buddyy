@@ -200,6 +200,7 @@ app.post("/SignIn", async (req, res) => {
 
 
 
+
 app.get('/generate-pdf', async (req, res) => {
     try {
         const userRefID = req.query._id;
@@ -211,6 +212,24 @@ app.get('/generate-pdf', async (req, res) => {
             UserModel.findOne({ _id: userRefID })
         ]);
         console.log('Fetched user data:', user);
+
+        // Group user's spending by month
+        const monthlySpending = {};
+
+        if (Array.isArray(userCards)) { // Ensure userCards is an array
+            userCards.forEach(entry => {
+                const date = new Date(entry.datetime);
+                const yearMonth = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
+                if (!monthlySpending[yearMonth]) {
+                    monthlySpending[yearMonth] = [];
+                }
+                monthlySpending[yearMonth].push(entry);
+            });
+        } else {
+            console.error('User cards data is not an array');
+            res.status(500).send('Error generating or uploading PDFs');
+            return;
+        }
 
         // Function to generate and upload PDF for a given month's spending
         const generateAndUploadPDF = async (yearMonth, cursor) => {
@@ -260,13 +279,8 @@ app.get('/generate-pdf', async (req, res) => {
 
         // Generate and upload PDFs for all months in parallel
         const pdfUrlsPromises = [];
-        userCards.forEach(entry => {
-            const date = new Date(entry.datetime);
-            const yearMonth = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
-            if (!monthlySpending[yearMonth]) {
-                monthlySpending[yearMonth] = [];
-            }
-            pdfUrlsPromises.push(generateAndUploadPDF(yearMonth, entry));
+        Object.entries(monthlySpending).forEach(([yearMonth, cursor]) => {
+            pdfUrlsPromises.push(generateAndUploadPDF(yearMonth, cursor));
         });
 
         // Wait for all PDFs to be generated and uploaded
@@ -288,7 +302,6 @@ app.get('/generate-pdf', async (req, res) => {
         res.status(500).send('Error generating or uploading PDFs');
     }
 });
-
 
 
 
