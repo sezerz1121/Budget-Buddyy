@@ -207,63 +207,66 @@ app.get('/generate-pdf', async (req, res) => {
 
         // Fetch user's cards and details in parallel
         const [userCards, user] = await Promise.all([
-            UserBudget.find({ ref_id: userRefID }),
+            UserBudget.find({ ref_id: userRefID }).lean().cursor(), // Streaming data directly from MongoDB
             UserModel.findOne({ _id: userRefID })
         ]);
         console.log('Fetched user data:', user);
 
-        // Group user's spending by month
-        const monthlySpending = {};
+        // Function to generate and upload PDF for a given month's spending
+        const generateAndUploadPDF = async (yearMonth, cursor) => {
+            console.log('Generating PDF for:', yearMonth);
+            return new Promise((resolve, reject) => {
+                const doc = new PDFDocument();
+                const buffers = [];
+                doc.fontSize(16).text(`User: ${user.name}`, { align: 'center' }).moveDown(0.5);
+                cursor.on('data', entry => { // Streaming data from MongoDB cursor
+                    const date = new Date(entry.datetime);
+                    doc.fontSize(12).text(`Date: ${date.toDateString()}, Item: ${entry.item_name}, Price: Rs${entry.price}`).moveDown();
+                });
+                cursor.on('end', async () => {
+                    try {
+                        const totalSpending = await cursor.map(doc => doc.price).reduce((total, price) => total + price, 0); // Chaining MongoDB cursor map and reduce operations
+                        doc.fontSize(14).text(`Total Spending for ${yearMonth}: Rs${totalSpending}`).moveDown();
+                        const buffers = [];
+                        doc.on('data', buffers.push.bind(buffers));
+                        doc.on('end', async () => {
+                            try {
+                                const pdfBuffer = Buffer.concat(buffers);
+                                console.log('Uploading PDF to Cloudinary...');
+                                const result = await cloudinary.uploader.upload_stream({ resource_type: 'raw', format: 'pdf' }, (error, result) => {
+                                    if (error) {
+                                        console.error('Error uploading PDF to Cloudinary:', error);
+                                        reject(error);
+                                    } else {
+                                        console.log('PDF uploaded successfully:', result.secure_url);
+                                        resolve(result.secure_url);
+                                    }
+                                });
+                                result.write(pdfBuffer);
+                                result.end();
+                            } catch (error) {
+                                console.error('Error generating or uploading PDF:', error);
+                                reject(error);
+                            }
+                        });
+                        doc.end();
+                    } catch (error) {
+                        console.error('Error generating or uploading PDF:', error);
+                        reject(error);
+                    }
+                });
+            });
+        };
+
+        // Generate and upload PDFs for all months in parallel
+        const pdfUrlsPromises = [];
         userCards.forEach(entry => {
             const date = new Date(entry.datetime);
             const yearMonth = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
             if (!monthlySpending[yearMonth]) {
                 monthlySpending[yearMonth] = [];
             }
-            monthlySpending[yearMonth].push(entry);
-        });
-
-        // Function to generate and upload PDF for a given month's spending
-        const generateAndUploadPDF = async (yearMonth, spending) => {
-            console.log('Generating PDF for:', yearMonth);
-            return new Promise((resolve, reject) => {
-                const doc = new PDFDocument();
-                const buffers = [];
-                doc.fontSize(16).text(`User: ${user.name}`, { align: 'center' }).moveDown(0.5);
-                spending.forEach(entry => {
-                    const date = new Date(entry.datetime);
-                    doc.fontSize(12).text(`Date: ${date.toDateString()}, Item: ${entry.item_name}, Price: Rs${entry.price}`).moveDown();
-                });
-                const totalSpending = spending.reduce((total, entry) => total + entry.price, 0);
-                doc.fontSize(14).text(`Total Spending for ${yearMonth}: Rs${totalSpending}`).moveDown();
-                doc.on('data', buffers.push.bind(buffers));
-                doc.on('end', async () => {
-                    try {
-                        const pdfBuffer = Buffer.concat(buffers);
-                        console.log('Uploading PDF to Cloudinary...');
-                        const result = await cloudinary.uploader.upload_stream({ resource_type: 'raw', format: 'pdf' }, (error, result) => {
-                            if (error) {
-                                console.error('Error uploading PDF to Cloudinary:', error);
-                                reject(error);
-                            } else {
-                                console.log('PDF uploaded successfully:', result.secure_url);
-                                resolve(result.secure_url);
-                            }
-                        });
-                        result.write(pdfBuffer);
-                        result.end();
-                    } catch (error) {
-                        console.error('Error generating or uploading PDF:', error);
-                        reject(error);
-                    }
-                });
-                doc.end();
-            });
-        };
-
-        // Generate and upload PDFs for all months in parallel
-        const pdfUrlsPromises = Object.entries(monthlySpending).map(([yearMonth, spending]) => {
-            return generateAndUploadPDF(yearMonth, spending);
+            pdfUrlsPromises.push(generateAndUploadPDF(yearMonth, entry));
         });
 
         // Wait for all PDFs to be generated and uploaded
