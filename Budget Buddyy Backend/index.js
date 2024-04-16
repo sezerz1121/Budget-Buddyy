@@ -208,12 +208,11 @@ app.get('/generate-pdf', async (req, res) => {
 
         // Fetch user's cards and details in parallel
         const [userCards, user] = await Promise.all([
-            UserBudget.find({ ref_id: userRefID }).lean().exec(), // Fetching user cards data as an array
+            UserBudget.find({ ref_id: userRefID }).lean().exec(),
             UserModel.findOne({ _id: userRefID })
         ]);
         console.log('Fetched user data:', user);
 
-        // Ensure userCards is an array
         if (!Array.isArray(userCards)) {
             console.error('User cards data is not an array');
             res.status(500).send('Error generating or uploading PDFs');
