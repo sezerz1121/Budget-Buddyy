@@ -243,14 +243,17 @@ app.get('/generate-pdf', async (req, res) => {
                         console.log('Uploading PDF to Cloudinary...');
                         const result = await cloudinary.uploader.upload_stream({ resource_type: 'raw', format: 'pdf' }, (error, result) => {
                             if (error) {
+                                console.error('Error uploading PDF to Cloudinary:', error);
                                 reject(error);
                             } else {
+                                console.log('PDF uploaded successfully:', result.secure_url);
                                 resolve(result.secure_url);
                             }
                         });
                         result.write(pdfBuffer);
                         result.end();
                     } catch (error) {
+                        console.error('Error generating or uploading PDF:', error);
                         reject(error);
                     }
                 });
@@ -282,7 +285,6 @@ app.get('/generate-pdf', async (req, res) => {
         res.status(500).send('Error generating or uploading PDFs');
     }
 });
-
 
 
 
