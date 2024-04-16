@@ -202,11 +202,15 @@ app.post("/SignIn", async (req, res) => {
     try {
         const userRefID = req.query._id;
 
+        console.log(`Generating PDF for user with ID: ${userRefID}`);
+
         // Fetch user's cards and details in parallel
         const [userCards, user] = await Promise.all([
             UserBudget.find({ ref_id: userRefID }),
             UserModel.findOne({ _id: userRefID })
         ]);
+
+        console.log(`User details fetched successfully for user with ID: ${userRefID}`);
 
         // Group user's spending by month
         const monthlySpending = {};
@@ -219,9 +223,14 @@ app.post("/SignIn", async (req, res) => {
             monthlySpending[yearMonth].push(entry);
         });
 
+        console.log('Monthly spending grouped successfully');
+
         // Function to generate and upload PDF for a given month's spending
         const generateAndUploadPDF = async (yearMonth, spending) => {
             return new Promise((resolve, reject) => {
+                // Logging start of PDF generation
+                console.log(`Generating PDF for month ${yearMonth}`);
+
                 const doc = new PDFDocument();
                 const transformer = new Transform({
                     transform(chunk, encoding, callback) {
@@ -230,6 +239,7 @@ app.post("/SignIn", async (req, res) => {
                     }
                 });
 
+                // Adding user and spending details to PDF
                 doc.fontSize(16).text(`User: ${user.name}`, { align: 'center' }).moveDown(0.5);
                 spending.forEach(entry => {
                     const date = new Date(entry.datetime);
@@ -244,6 +254,9 @@ app.post("/SignIn", async (req, res) => {
                 transformer.on('end', async () => {
                     const pdfBuffer = Buffer.concat(buffers);
                     try {
+                        // Logging start of PDF upload
+                        console.log(`Uploading PDF for month ${yearMonth}`);
+
                         const result = await cloudinary.uploader.upload_stream(
                             { resource_type: 'raw', format: 'pdf' },
                             (error, result) => {
@@ -256,6 +269,9 @@ app.post("/SignIn", async (req, res) => {
                         );
                         result.write(pdfBuffer);
                         result.end();
+
+                        // Logging successful PDF upload
+                        console.log(`PDF for month ${yearMonth} uploaded successfully`);
                     } catch (error) {
                         reject(error);
                     }
@@ -272,6 +288,9 @@ app.post("/SignIn", async (req, res) => {
         // Wait for all PDFs to be generated and uploaded
         const pdfUrls = await Promise.all(pdfUrlsPromises);
 
+        // Logging successful PDF generation and storage
+        console.log('PDFs generated and stored successfully');
+
         // Store PDF links in the database
         const pdfDocuments = pdfUrls.map(url => ({
             ref_id: userRefID,
@@ -282,10 +301,12 @@ app.post("/SignIn", async (req, res) => {
 
         res.status(200).send('PDFs generated and stored successfully');
     } catch (error) {
+        // Logging errors
         console.error('Error generating or uploading PDFs:', error);
         res.status(500).send('Error generating or uploading PDFs');
     }
 });
+
 
 
 
