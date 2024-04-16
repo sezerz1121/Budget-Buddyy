@@ -203,12 +203,14 @@ app.post("/SignIn", async (req, res) => {
 app.get('/generate-pdf', async (req, res) => {
     try {
         const userRefID = req.query._id;
+        console.log('Generating PDF for user:', userRefID);
 
         // Fetch user's cards and details in parallel
         const [userCards, user] = await Promise.all([
             UserBudget.find({ ref_id: userRefID }),
             UserModel.findOne({ _id: userRefID })
         ]);
+        console.log('Fetched user data:', user);
 
         // Group user's spending by month
         const monthlySpending = {};
@@ -223,6 +225,7 @@ app.get('/generate-pdf', async (req, res) => {
 
         // Function to generate and upload PDF for a given month's spending
         const generateAndUploadPDF = async (yearMonth, spending) => {
+            console.log('Generating PDF for:', yearMonth);
             return new Promise((resolve, reject) => {
                 const doc = new PDFDocument();
                 const buffers = [];
@@ -237,6 +240,7 @@ app.get('/generate-pdf', async (req, res) => {
                 doc.on('end', async () => {
                     try {
                         const pdfBuffer = Buffer.concat(buffers);
+                        console.log('Uploading PDF to Cloudinary...');
                         const result = await cloudinary.uploader.upload_stream({ resource_type: 'raw', format: 'pdf' }, (error, result) => {
                             if (error) {
                                 reject(error);
@@ -261,6 +265,7 @@ app.get('/generate-pdf', async (req, res) => {
 
         // Wait for all PDFs to be generated and uploaded
         const pdfUrls = await Promise.all(pdfUrlsPromises);
+        console.log('PDFs generated and uploaded:', pdfUrls);
 
         // Store PDF links in the database
         const pdfDocuments = pdfUrls.map(url => ({
@@ -269,6 +274,7 @@ app.get('/generate-pdf', async (req, res) => {
             link: url
         }));
         await UserPdf.create(pdfDocuments);
+        console.log('PDF documents stored in the database:', pdfDocuments);
 
         res.status(200).send('PDFs generated and stored successfully');
     } catch (error) {
