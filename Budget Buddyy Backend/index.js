@@ -225,13 +225,7 @@ app.get('/generate-pdf', async (req, res) => {
         const generateAndUploadPDF = async (yearMonth, spending) => {
             return new Promise((resolve, reject) => {
                 const doc = new PDFDocument();
-                const transformer = new Transform({
-                    transform(chunk, encoding, callback) {
-                        this.push(chunk);
-                        callback();
-                    }
-                });
-
+                const buffers = [];
                 doc.fontSize(16).text(`User: ${user.name}`, { align: 'center' }).moveDown(0.5);
                 spending.forEach(entry => {
                     const date = new Date(entry.datetime);
@@ -239,23 +233,17 @@ app.get('/generate-pdf', async (req, res) => {
                 });
                 const totalSpending = spending.reduce((total, entry) => total + entry.price, 0);
                 doc.fontSize(14).text(`Total Spending for ${yearMonth}: Rs${totalSpending}`).moveDown();
-                doc.pipe(transformer);
-
-                const buffers = [];
-                transformer.on('data', buffers.push.bind(buffers));
-                transformer.on('end', async () => {
-                    const pdfBuffer = Buffer.concat(buffers);
+                doc.on('data', buffers.push.bind(buffers));
+                doc.on('end', async () => {
                     try {
-                        const result = await cloudinary.uploader.upload_stream(
-                            { resource_type: 'raw', format: 'pdf' },
-                            (error, result) => {
-                                if (error) {
-                                    reject(error);
-                                } else {
-                                    resolve(result.secure_url);
-                                }
+                        const pdfBuffer = Buffer.concat(buffers);
+                        const result = await cloudinary.uploader.upload_stream({ resource_type: 'raw', format: 'pdf' }, (error, result) => {
+                            if (error) {
+                                reject(error);
+                            } else {
+                                resolve(result.secure_url);
                             }
-                        );
+                        });
                         result.write(pdfBuffer);
                         result.end();
                     } catch (error) {
