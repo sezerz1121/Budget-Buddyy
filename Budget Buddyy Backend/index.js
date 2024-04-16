@@ -140,23 +140,20 @@ app.post("/SignIn", async (req, res) => {
 app.get('/generate-pdf', async (req, res) => {
     try {
         const userRefID = req.query._id;
+        console.log('Generating PDF for user:', userRefID);
 
-        // Fetch user's spending data and user details
+        // Fetch user's cards and details in parallel
         const [userCards, user] = await Promise.all([
             UserBudget.find({ ref_id: userRefID }).lean().exec(),
             UserModel.findOne({ _id: userRefID })
         ]);
+        
+        console.log('Fetched user data:', user);
 
-        // Check if user or spending data is not found
-        if (!user || !userCards) {
-            console.error('User or spending data not found');
-            return res.status(404).send('User or spending data not found');
-        }
-
-        // Check if userCards is not an array or empty
-        if (!Array.isArray(userCards) || userCards.length === 0) {
-            console.error('User cards data is not an array or empty');
-            return res.status(404).send('User cards data is not found or empty');
+        // Check if userCards is an array
+        if (!Array.isArray(userCards)) {
+            console.error('User cards data is not an array');
+            return res.status(500).send('Error generating or uploading PDFs');
         }
 
         // Group user's spending by month
@@ -194,7 +191,7 @@ app.get('/generate-pdf', async (req, res) => {
                     try {
                         const pdfBuffer = Buffer.concat(buffers);
                         console.log('Uploading PDF to Cloudinary...');
-                        const result = await cloudinary.uploader.upload_stream(
+                        cloudinary.uploader.upload_stream(
                             { resource_type: 'raw', format: 'pdf' },
                             (error, result) => {
                                 if (error) {
@@ -205,9 +202,7 @@ app.get('/generate-pdf', async (req, res) => {
                                     resolve(result.secure_url);
                                 }
                             }
-                        );
-                        result.write(pdfBuffer);
-                        result.end();
+                        ).end(pdfBuffer); // Pass the PDF buffer to the upload stream
                     } catch (error) {
                         console.error('Error generating or uploading PDF:', error);
                         reject(error);
@@ -235,12 +230,10 @@ app.get('/generate-pdf', async (req, res) => {
         await UserPdf.create(pdfDocuments);
         console.log('PDF documents stored in the database:', pdfDocuments);
 
-        // Send success response
-        res.status(200).send('PDFs generated and stored successfully');
+        return res.status(200).send('PDFs generated and stored successfully');
     } catch (error) {
-        // Handle errors
         console.error('Error generating or uploading PDFs:', error);
-        res.status(500).send('Error generating or uploading PDFs');
+        return res.status(500).send('Error generating or uploading PDFs');
     }
 });
 
