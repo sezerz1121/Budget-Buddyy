@@ -198,32 +198,7 @@ app.post("/SignIn", async (req, res) => {
 
 
 
-  app.get('/generate-pdf', async (req, res) => {
-    try {
-        const userRefID = req.query._id;
 
-        console.log(`Generating PDF for user with ID: ${userRefID}`);
-
-        // Fetch user's cards and details in parallel
-        const [userCards, user] = await Promise.all([
-            UserBudget.find({ ref_id: userRefID }),
-            UserModel.findOne({ _id: userRefID })
-        ]);
-
-        console.log(`User details fetched successfully for user with ID: ${userRefID}`);
-
-        // Group user's spending by month
-        const monthlySpending = {};
-        userCards.forEach(entry => {
-            const date = new Date(entry.datetime);
-            const yearMonth = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`;
-            if (!monthlySpending[yearMonth]) {
-                monthlySpending[yearMonth] = [];
-            }
-            monthlySpending[yearMonth].push(entry);
-        });
-
-        console.log('Monthly spending grouped successfully');
 
 app.get('/generate-pdf', async (req, res) => {
     try {
