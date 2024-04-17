@@ -16,8 +16,7 @@ import { Transform, Readable } from 'stream';
 import { createTransport } from 'nodemailer';
 import UserPdf from "./UserPdf.js";
 
-import stream from 'stream';
-import pdf from 'html-pdf';
+
 dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
@@ -140,29 +139,27 @@ app.post("/SignIn", async (req, res) => {
     }
 });
 
-app.get('/generate-image', async (req, res) => {
+app.get('/generate-pdf', async (req, res) => {
     try {
         const userRefID = req.query._id;
 
-        // Fetch user and spending data
         const [userCards, user] = await Promise.all([
             UserBudget.find({ ref_id: userRefID }).lean().exec(),
             UserModel.findOne({ _id: userRefID })
         ]);
 
-        // Check if user or spending data is missing
+
         if (!user || !userCards) {
             console.error('User or spending data not found');
             return res.status(404).send('User or spending data not found');
         }
 
-        // Check if user cards data is empty
+        
         if (!Array.isArray(userCards) || userCards.length === 0) {
             console.error('User cards data is not an array or empty');
             return res.status(404).send('User cards data is not found or empty');
         }
 
-        // Group spending data by month
         const monthlySpending = {};
         userCards.forEach(entry => {
             const date = new Date(entry.datetime);
@@ -173,75 +170,89 @@ app.get('/generate-image', async (req, res) => {
             monthlySpending[yearMonth].push(entry);
         });
 
-        // Generate HTML content for each month's spending
-        const generateHTML = (userName, yearMonth, spending, totalSpending) => {
-            let html = `<h1>User: ${userName}</h1><br>`;
-            html += `<h2>Spending for ${yearMonth}</h2>`;
-            spending.forEach(entry => {
-                const date = new Date(entry.datetime);
-                html += `<p>Date: ${date.toDateString()}, Item: ${entry.item_name}, Price: Rs${entry.price}</p><br>`;
-            });
-            html += `<p>Total Spending for ${yearMonth}: Rs${totalSpending}</p>`;
-            return html;
-        };
+        
+        
 
-        // Generate and upload image for each month's spending
-        const generateAndUploadImage = async (yearMonth, spending) => {
-            console.log('Generating image for:', yearMonth);
-            const totalSpending = spending.reduce((total, entry) => total + entry.price, 0);
-            console.log('Total spending for', yearMonth, ': Rs', totalSpending);
-            const html = generateHTML(user.name, yearMonth, spending, totalSpending);
-            const options = { format: 'Letter' };
 
-            // Create PDF buffer from HTML content
-            const buffer = await new Promise((resolve, reject) => {
-                pdf.create(html, options).toBuffer((err, buffer) => {
-                    if (err) reject(err);
-                    resolve(buffer);
+        const generateAndUploadPDF = async (yearMonth, spending) => {
+            console.log('Generating PDF for:', yearMonth);
+            return new Promise(async (resolve, reject) => {
+                const doc = new PDFDocument();
+                const buffers = [];
+                doc.fontSize(16).text(`User: ${user.name}`, { align: 'center' }).moveDown(0.5);
+                spending.forEach(entry => {
+                    const date = new Date(entry.datetime);
+                    doc.fontSize(12).text(`Date: ${date.toDateString()}, Item: ${entry.item_name}, Price: Rs${entry.price}`).moveDown();
                 });
+                const totalSpending = spending.reduce((total, entry) => total + entry.price, 0);
+                doc.fontSize(14).text(`Total Spending for ${yearMonth}: Rs${totalSpending}`).moveDown();
+                const transformer = new Transform({
+                    transform(chunk, encoding, callback) {
+                        buffers.push(chunk);
+                        callback();
+                    }
+                });
+                doc.pipe(transformer);
+                transformer.on('finish', async () => {
+                    try {
+                        const pdfBuffer = Buffer.concat(buffers);
+                        
+                        console.log('Uploading PDF to Cloudinary...');
+                        
+                        // Create a readable stream from the PDF buffer
+                        const pdfStream = new Readable();
+                        pdfStream.push(pdfBuffer);
+                        pdfStream.push(null); // Close the stream
+                        
+                        // Upload the PDF stream directly to Cloudinary
+                        cloudinary.uploader.upload_stream({ resource_type: 'image' },
+                            (error, result) => {
+                                if (error) {
+                                    console.error('Error uploading PDF to Cloudinary:', error);
+                                    reject(error);
+                                } else {
+                                    console.log('PDF uploaded successfully:', result.secure_url);
+                                    resolve(result.secure_url);
+                                }
+                            }
+                        ).end(pdfBuffer); // End the stream with the PDF buffer
+                    } catch (error) {
+                        console.error('Error generating or uploading PDF:', error);
+                        reject(error);
+                    }
+                });
+                doc.end();
             });
-
-            // Upload PDF buffer to Cloudinary
-            cloudinary.uploader.upload_stream({ resource_type: 'image' }, (error, result) => {
-                if (error) {
-                    console.error('Error uploading image to Cloudinary:', error);
-                    throw error;
-                }
-                console.log('Image uploaded successfully:', result.secure_url);
-
-                // Store image document in the database
-                const imageDocument = {
-                    ref_id: userRefID,
-                    time: new Date().toISOString(),
-                    link: result.secure_url
-                };
-                console.log('Image document:', imageDocument);
-
-                UserPdf.create(imageDocument)
-                    .then(doc => {
-                        console.log('Image document stored in the database:', doc);
-                    })
-                    .catch(err => {
-                        console.error('Error storing image document in the database:', err);
-                        throw err;
-                    });
-            }).end(buffer); // Pipe PDF buffer to upload stream
         };
 
-        // Generate and upload images for all months
-        const imageUrlsPromises = Object.entries(monthlySpending).map(([yearMonth, spending]) => {
-            return generateAndUploadImage(yearMonth, spending);
+
+        
+        
+
+        
+        const pdfUrlsPromises = Object.entries(monthlySpending).map(([yearMonth, spending]) => {
+            return generateAndUploadPDF(yearMonth, spending);
         });
 
-        // Wait for all images to be generated and uploaded
-        await Promise.all(imageUrlsPromises);
+        
+        const pdfUrls = await Promise.all(pdfUrlsPromises);
+        console.log('PDFs generated and uploaded:', pdfUrls);
 
-        // Send success response
-        res.status(200).send('Images generated and stored successfully');
+        
+        const pdfDocuments = pdfUrls.map(url => ({
+            ref_id: userRefID,
+            time: new Date().toISOString(),
+            link: url
+        }));
+        await UserPdf.create(pdfDocuments);
+        console.log('PDF documents stored in the database:', pdfDocuments);
+
+        
+        res.status(200).send('PDFs generated and stored successfully');
     } catch (error) {
-        // Handle errors
-        console.error('Error generating or uploading images:', error);
-        res.status(500).send('Error generating or uploading images');
+       
+        console.error('Error generating or uploading PDFs:', error);
+        res.status(500).send('Error generating or uploading PDFs');
     }
 });
 
