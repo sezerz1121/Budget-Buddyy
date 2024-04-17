@@ -142,7 +142,7 @@ app.get('/generate-pdf', async (req, res) => {
         const userRefID = req.query._id;
         console.log('Generating PDF for user:', userRefID);
 
-        // Fetch user's cards and details in parallel
+       
         const [userCards, user] = await Promise.all([
             UserBudget.find({ ref_id: userRefID }).lean().exec(),
             UserModel.findOne({ _id: userRefID })
@@ -150,13 +150,12 @@ app.get('/generate-pdf', async (req, res) => {
         
         console.log('Fetched user data:', user);
 
-        // Check if userCards is an array
         if (!Array.isArray(userCards)) {
             console.error('User cards data is not an array');
             return res.status(500).send('Error generating or uploading PDFs');
         }
 
-        // Group user's spending by month
+        
         const monthlySpending = {};
         userCards.forEach(entry => {
             const date = new Date(entry.datetime);
@@ -167,7 +166,7 @@ app.get('/generate-pdf', async (req, res) => {
             monthlySpending[yearMonth].push(entry);
         });
 
-        // Function to generate and upload PDF for a given month's spending
+       
         const generateAndUploadPDF = async (yearMonth, spending) => {
             console.log('Generating PDF for:', yearMonth);
             return new Promise((resolve, reject) => {
@@ -202,7 +201,7 @@ app.get('/generate-pdf', async (req, res) => {
                                     resolve(result.secure_url);
                                 }
                             }
-                        ).end(pdfBuffer); // Pass the PDF buffer to the upload stream
+                        ).end(pdfBuffer);
                     } catch (error) {
                         console.error('Error generating or uploading PDF:', error);
                         reject(error);
@@ -212,16 +211,16 @@ app.get('/generate-pdf', async (req, res) => {
             });
         };
 
-        // Generate and upload PDFs for all months in parallel
+      
         const pdfUrlsPromises = Object.entries(monthlySpending).map(([yearMonth, spending]) => {
             return generateAndUploadPDF(yearMonth, spending);
         });
 
-        // Wait for all PDFs to be generated and uploaded
+     
         const pdfUrls = await Promise.all(pdfUrlsPromises);
         console.log('PDFs generated and uploaded:', pdfUrls);
 
-        // Store PDF links in the database
+
         const pdfDocuments = pdfUrls.map(url => ({
             ref_id: userRefID,
             time: new Date().toISOString(),
