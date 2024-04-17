@@ -203,17 +203,19 @@ app.post("/SignIn", async (req, res) => {
                         pdfStream.push(null); // Close the stream
                         
                         // Upload the PDF stream directly to Cloudinary
-                        cloudinary.uploader.upload_stream({ resource_type: 'raw', format: 'pdf' },
-                            (error, result) => {
-                                if (error) {
-                                    console.error('Error uploading PDF to Cloudinary:', error);
-                                    reject(error);
-                                } else {
-                                    console.log('PDF uploaded successfully:', result.secure_url);
-                                    resolve(result.secure_url);
-                                }
+                       cloudinary.uploader.upload_stream({ resource_type: 'raw', format: 'pdf' },
+                        (error, result) => {
+                            if (error) {
+                                console.error('Error uploading PDF to Cloudinary:', error);
+                                reject(error);
+                            } else {
+                                console.log('Cloudinary response:', result);
+                                console.log('PDF uploaded successfully:', result.secure_url);
+                                resolve(result.secure_url);
                             }
-                        ).end(pdfBuffer); // End the stream with the PDF buffer
+                        }
+                    ).end(pdfBuffer); // End the stream with the PDF buffer
+                    // End the stream with the PDF buffer
                     } catch (error) {
                         console.error('Error generating or uploading PDF:', error);
                         reject(error);
