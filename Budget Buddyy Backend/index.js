@@ -17,6 +17,7 @@ import { createTransport } from 'nodemailer';
 import UserPdf from "./UserPdf.js";
 import puppeteer from 'puppeteer';
 import stream from 'stream';
+import pdf from 'html-pdf';
 dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
@@ -139,7 +140,7 @@ app.post("/SignIn", async (req, res) => {
     }
 });
 
-  app.get('/generate-image', async (req, res) => {
+app.get('/generate-image', async (req, res) => {
     try {
         const userRefID = req.query._id;
 
@@ -183,12 +184,16 @@ app.post("/SignIn", async (req, res) => {
             console.log('Generating image for:', yearMonth);
             const totalSpending = spending.reduce((total, entry) => total + entry.price, 0);
             console.log('Total spending for', yearMonth, ': Rs', totalSpending);
-            const browser = await puppeteer.launch();
-            const page = await browser.newPage();
-            await page.setContent(generateHTML(user.name, yearMonth, spending, totalSpending));
-            const imageBuffer = await page.screenshot({ fullPage: true });
-            await browser.close();
-            
+            const html = generateHTML(user.name, yearMonth, spending, totalSpending);
+            const options = { format: 'Letter' };
+
+            const buffer = await new Promise((resolve, reject) => {
+                pdf.create(html, options).toBuffer((err, buffer) => {
+                    if (err) reject(err);
+                    resolve(buffer);
+                });
+            });
+
             console.log('Uploading image to Cloudinary...');
             try {
                 const uploadStream = cloudinary.uploader.upload_stream({ resource_type: 'image' },
@@ -198,10 +203,26 @@ app.post("/SignIn", async (req, res) => {
                             throw error;
                         }
                         console.log('Image uploaded successfully:', result.secure_url);
+
+                        const imageDocument = {
+                            ref_id: userRefID,
+                            time: new Date().toISOString(),
+                            link: result.secure_url
+                        };
+                        console.log('Image document:', imageDocument);
+
+                        UserPdf.create(imageDocument)
+                            .then(doc => {
+                                console.log('Image document stored in the database:', doc);
+                            })
+                            .catch(err => {
+                                console.error('Error storing image document in the database:', err);
+                                throw err;
+                            });
                     }
                 );
                 const readableStream = new stream.PassThrough();
-                readableStream.end(imageBuffer);
+                readableStream.end(buffer);
                 readableStream.pipe(uploadStream);
             } catch (error) {
                 console.error('Error uploading image to Cloudinary:', error);
@@ -213,23 +234,14 @@ app.post("/SignIn", async (req, res) => {
             return generateAndUploadImage(yearMonth, spending);
         });
 
-        const imageUrls = await Promise.all(imageUrlsPromises);
-        console.log('Images generated and uploaded:', imageUrls);
-
-        const imageDocuments = imageUrls.map(url => ({
-            ref_id: userRefID,
-            time: new Date().toISOString(),
-            link: url
-        }));
-        
-        console.log('Image documents stored in the database:', imageDocuments);
+        await Promise.all(imageUrlsPromises);
 
         res.status(200).send('Images generated and stored successfully');
     } catch (error) {
         console.error('Error generating or uploading images:', error);
         res.status(500).send('Error generating or uploading images');
     }
- });
+});
 
 
 app.listen(port, () => {
