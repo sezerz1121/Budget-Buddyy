@@ -40,7 +40,7 @@ app.use('/pdf', express.static(path.join(__dirname, 'pdf')));
 const secretKey = '123456789';
 const port = 3000;
 
-mongoose.connect("mongodb+srv://tatsam24copywriter:bWbQN7urqvswx2bU@drivewise.zgowklk.mongodb.net/?retryWrites=true&w=majority&appName=DriveWise", {
+mongoose.connect(process.env.mangodb, {
     serverSelectionTimeoutMS: 5000
 });
 
