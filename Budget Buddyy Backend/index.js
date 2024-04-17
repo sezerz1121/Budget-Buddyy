@@ -15,7 +15,7 @@ import dotenv from 'dotenv';
 import { Transform, Readable } from 'stream';
 import { createTransport } from 'nodemailer';
 import UserPdf from "./UserPdf.js";
-import puppeteer from 'puppeteer';
+
 import stream from 'stream';
 import pdf from 'html-pdf';
 dotenv.config();
