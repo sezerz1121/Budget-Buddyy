@@ -15,6 +15,8 @@ import dotenv from 'dotenv';
 import { Transform, Readable } from 'stream';
 import { createTransport } from 'nodemailer';
 import UserPdf from "./UserPdf.js";
+import puppeteer from 'puppeteer';
+import stream from 'stream';
 dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
@@ -137,7 +139,7 @@ app.post("/SignIn", async (req, res) => {
     }
 });
 
-  app.get('/generate-pdf', async (req, res) => {
+  app.get('/generate-image', async (req, res) => {
     try {
         const userRefID = req.query._id;
 
@@ -146,13 +148,11 @@ app.post("/SignIn", async (req, res) => {
             UserModel.findOne({ _id: userRefID })
         ]);
 
-
         if (!user || !userCards) {
             console.error('User or spending data not found');
             return res.status(404).send('User or spending data not found');
         }
 
-        
         if (!Array.isArray(userCards) || userCards.length === 0) {
             console.error('User cards data is not an array or empty');
             return res.status(404).send('User cards data is not found or empty');
@@ -168,93 +168,68 @@ app.post("/SignIn", async (req, res) => {
             monthlySpending[yearMonth].push(entry);
         });
 
-        
-        
-
-
-        const generateAndUploadPDF = async (yearMonth, spending) => {
-            console.log('Generating PDF for:', yearMonth);
-            return new Promise(async (resolve, reject) => {
-                const doc = new PDFDocument();
-                const buffers = [];
-                doc.fontSize(16).text(`User: ${user.name}`, { align: 'center' }).moveDown(0.5);
-                spending.forEach(entry => {
-                    const date = new Date(entry.datetime);
-                    doc.fontSize(12).text(`Date: ${date.toDateString()}, Item: ${entry.item_name}, Price: Rs${entry.price}`).moveDown();
-                });
-                const totalSpending = spending.reduce((total, entry) => total + entry.price, 0);
-                doc.fontSize(14).text(`Total Spending for ${yearMonth}: Rs${totalSpending}`).moveDown();
-                const transformer = new Transform({
-                    transform(chunk, encoding, callback) {
-                        buffers.push(chunk);
-                        callback();
-                    }
-                });
-                doc.pipe(transformer);
-                transformer.on('finish', async () => {
-                    try {
-                        const pdfBuffer = Buffer.concat(buffers);
-                        
-                        console.log('Uploading PDF to Cloudinary...');
-                        
-                        // Create a readable stream from the PDF buffer
-                        const pdfStream = new Readable();
-                        pdfStream.push(pdfBuffer);
-                        pdfStream.push(null); // Close the stream
-                        
-                        // Upload the PDF stream directly to Cloudinary
-                       cloudinary.uploader.upload_stream({ resource_type: 'raw', format: 'pdf' },
-                        (error, result) => {
-                            if (error) {
-                                console.error('Error uploading PDF to Cloudinary:', error);
-                                reject(error);
-                            } else {
-                                console.log('Cloudinary response:', result);
-                                console.log('PDF uploaded successfully:', result.secure_url);
-                                resolve(result.secure_url);
-                            }
-                        }
-                    ).end(pdfBuffer); // End the stream with the PDF buffer
-                    // End the stream with the PDF buffer
-                    } catch (error) {
-                        console.error('Error generating or uploading PDF:', error);
-                        reject(error);
-                    }
-                });
-                doc.end();
+        const generateHTML = (userName, yearMonth, spending, totalSpending) => {
+            let html = `<h1>User: ${userName}</h1><br>`;
+            html += `<h2>Spending for ${yearMonth}</h2>`;
+            spending.forEach(entry => {
+                const date = new Date(entry.datetime);
+                html += `<p>Date: ${date.toDateString()}, Item: ${entry.item_name}, Price: Rs${entry.price}</p><br>`;
             });
+            html += `<p>Total Spending for ${yearMonth}: Rs${totalSpending}</p>`;
+            return html;
         };
 
+        const generateAndUploadImage = async (yearMonth, spending) => {
+            console.log('Generating image for:', yearMonth);
+            const totalSpending = spending.reduce((total, entry) => total + entry.price, 0);
+            console.log('Total spending for', yearMonth, ': Rs', totalSpending);
+            const browser = await puppeteer.launch();
+            const page = await browser.newPage();
+            await page.setContent(generateHTML(user.name, yearMonth, spending, totalSpending));
+            const imageBuffer = await page.screenshot({ fullPage: true });
+            await browser.close();
+            
+            console.log('Uploading image to Cloudinary...');
+            try {
+                const uploadStream = cloudinary.uploader.upload_stream({ resource_type: 'image' },
+                    (error, result) => {
+                        if (error) {
+                            console.error('Error uploading image to Cloudinary:', error);
+                            throw error;
+                        }
+                        console.log('Image uploaded successfully:', result.secure_url);
+                    }
+                );
+                const readableStream = new stream.PassThrough();
+                readableStream.end(imageBuffer);
+                readableStream.pipe(uploadStream);
+            } catch (error) {
+                console.error('Error uploading image to Cloudinary:', error);
+                throw error;
+            }
+        };
 
-        
-        
-
-        
-        const pdfUrlsPromises = Object.entries(monthlySpending).map(([yearMonth, spending]) => {
-            return generateAndUploadPDF(yearMonth, spending);
+        const imageUrlsPromises = Object.entries(monthlySpending).map(([yearMonth, spending]) => {
+            return generateAndUploadImage(yearMonth, spending);
         });
 
-        
-        const pdfUrls = await Promise.all(pdfUrlsPromises);
-        console.log('PDFs generated and uploaded:', pdfUrls);
+        const imageUrls = await Promise.all(imageUrlsPromises);
+        console.log('Images generated and uploaded:', imageUrls);
 
-        
-        const pdfDocuments = pdfUrls.map(url => ({
+        const imageDocuments = imageUrls.map(url => ({
             ref_id: userRefID,
             time: new Date().toISOString(),
             link: url
         }));
-        await UserPdf.create(pdfDocuments);
-        console.log('PDF documents stored in the database:', pdfDocuments);
-
         
-        res.status(200).send('PDFs generated and stored successfully');
+        console.log('Image documents stored in the database:', imageDocuments);
+
+        res.status(200).send('Images generated and stored successfully');
     } catch (error) {
-       
-        console.error('Error generating or uploading PDFs:', error);
-        res.status(500).send('Error generating or uploading PDFs');
+        console.error('Error generating or uploading images:', error);
+        res.status(500).send('Error generating or uploading images');
     }
-});
+ });
 
 
 app.listen(port, () => {
