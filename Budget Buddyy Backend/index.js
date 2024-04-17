@@ -144,21 +144,25 @@ app.get('/generate-image', async (req, res) => {
     try {
         const userRefID = req.query._id;
 
+        // Fetch user and spending data
         const [userCards, user] = await Promise.all([
             UserBudget.find({ ref_id: userRefID }).lean().exec(),
             UserModel.findOne({ _id: userRefID })
         ]);
 
+        // Check if user or spending data is missing
         if (!user || !userCards) {
             console.error('User or spending data not found');
             return res.status(404).send('User or spending data not found');
         }
 
+        // Check if user cards data is empty
         if (!Array.isArray(userCards) || userCards.length === 0) {
             console.error('User cards data is not an array or empty');
             return res.status(404).send('User cards data is not found or empty');
         }
 
+        // Group spending data by month
         const monthlySpending = {};
         userCards.forEach(entry => {
             const date = new Date(entry.datetime);
@@ -169,6 +173,7 @@ app.get('/generate-image', async (req, res) => {
             monthlySpending[yearMonth].push(entry);
         });
 
+        // Generate HTML content for each month's spending
         const generateHTML = (userName, yearMonth, spending, totalSpending) => {
             let html = `<h1>User: ${userName}</h1><br>`;
             html += `<h2>Spending for ${yearMonth}</h2>`;
@@ -180,6 +185,7 @@ app.get('/generate-image', async (req, res) => {
             return html;
         };
 
+        // Generate and upload image for each month's spending
         const generateAndUploadImage = async (yearMonth, spending) => {
             console.log('Generating image for:', yearMonth);
             const totalSpending = spending.reduce((total, entry) => total + entry.price, 0);
@@ -187,6 +193,7 @@ app.get('/generate-image', async (req, res) => {
             const html = generateHTML(user.name, yearMonth, spending, totalSpending);
             const options = { format: 'Letter' };
 
+            // Create PDF buffer from HTML content
             const buffer = await new Promise((resolve, reject) => {
                 pdf.create(html, options).toBuffer((err, buffer) => {
                     if (err) reject(err);
@@ -194,50 +201,45 @@ app.get('/generate-image', async (req, res) => {
                 });
             });
 
-            console.log('Uploading image to Cloudinary...');
-            try {
-                const uploadStream = cloudinary.uploader.upload_stream({ resource_type: 'image' },
-                    (error, result) => {
-                        if (error) {
-                            console.error('Error uploading image to Cloudinary:', error);
-                            throw error;
-                        }
-                        console.log('Image uploaded successfully:', result.secure_url);
+            // Upload PDF buffer to Cloudinary
+            cloudinary.uploader.upload_stream({ resource_type: 'image' }, (error, result) => {
+                if (error) {
+                    console.error('Error uploading image to Cloudinary:', error);
+                    throw error;
+                }
+                console.log('Image uploaded successfully:', result.secure_url);
 
-                        const imageDocument = {
-                            ref_id: userRefID,
-                            time: new Date().toISOString(),
-                            link: result.secure_url
-                        };
-                        console.log('Image document:', imageDocument);
+                // Store image document in the database
+                const imageDocument = {
+                    ref_id: userRefID,
+                    time: new Date().toISOString(),
+                    link: result.secure_url
+                };
+                console.log('Image document:', imageDocument);
 
-                        UserPdf.create(imageDocument)
-                            .then(doc => {
-                                console.log('Image document stored in the database:', doc);
-                            })
-                            .catch(err => {
-                                console.error('Error storing image document in the database:', err);
-                                throw err;
-                            });
-                    }
-                );
-                const readableStream = new stream.PassThrough();
-                readableStream.end(buffer);
-                readableStream.pipe(uploadStream);
-            } catch (error) {
-                console.error('Error uploading image to Cloudinary:', error);
-                throw error;
-            }
+                UserPdf.create(imageDocument)
+                    .then(doc => {
+                        console.log('Image document stored in the database:', doc);
+                    })
+                    .catch(err => {
+                        console.error('Error storing image document in the database:', err);
+                        throw err;
+                    });
+            }).end(buffer); // Pipe PDF buffer to upload stream
         };
 
+        // Generate and upload images for all months
         const imageUrlsPromises = Object.entries(monthlySpending).map(([yearMonth, spending]) => {
             return generateAndUploadImage(yearMonth, spending);
         });
 
+        // Wait for all images to be generated and uploaded
         await Promise.all(imageUrlsPromises);
 
+        // Send success response
         res.status(200).send('Images generated and stored successfully');
     } catch (error) {
+        // Handle errors
         console.error('Error generating or uploading images:', error);
         res.status(500).send('Error generating or uploading images');
     }
