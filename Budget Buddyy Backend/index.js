@@ -145,7 +145,7 @@ app.post("/SignIn", async (req, res) => {
     try {
         const userRefID = req.query._id;
         const pdfPath = await generatePDFExample(userRefID);
-        console.log(pdfpath)
+        console.log(pdfPath)
         if(!pdfPath)
         {
            console.log("path not generated"+pdfPath)
