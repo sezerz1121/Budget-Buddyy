@@ -40,7 +40,7 @@ function Homepage() {
               return;
             }
       
-            const response = await axios.get("https://budget-buddyy.vercel.app/profile", {
+            const response = await axios.get("https://budget-buddyy-1.onrender.com/profile", {
               headers: {
                 Authorization: `Bearer ${token}`,
               },
@@ -65,7 +65,7 @@ function Homepage() {
             return;
           }
     
-          const response = await axios.get("https://budget-buddyy.vercel.app/Budgetcards", {
+          const response = await axios.get("https://budget-buddyy-1.onrender.com/Budgetcards", {
             headers: {
               Authorization: `Bearer ${token}`,
             },
