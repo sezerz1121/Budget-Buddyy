@@ -141,13 +141,21 @@ app.post("/SignIn", async (req, res) => {
     }
 });
 
-app.get('/generate-pdf', async (req, res) => {
+  app.get('/generate-pdf', async (req, res) => {
     try {
         const userRefID = req.query._id;
         const pdfPath = await generatePDFExample(userRefID);
+        if(!pdfPath)
+        {
+           console.log("path not generated")
+        }
 
         // Upload the PDF to Cloudinary if needed
          const pdf = await uploadOnCloudinary(pdfPath);
+         if(!pdf)
+        {
+           console.log("pdf not generated")
+        }
 
         // If you're not using Cloudinary, you can directly send the path as a response
         res.status(200).json({ message: pdf.secure_url });
