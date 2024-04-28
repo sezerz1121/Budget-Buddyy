@@ -46,41 +46,24 @@ function Analitics() {
       };
 const handle_pdf = async () => {
         try {
-            const registerResponse = await axios.get("https://budget-buddyy.vercel.app/generate-pdf", {
+            const generatePDFResponse = await axios.get("https://backend-buddyy.onrender.com/generate-pdf", {
                 params: {
                     _id: user._id,
                 },
             });
     
-            // Extract the PDF file URLs from the response data
-            const { pdfFileUrls } = registerResponse.data;
+            // Extract the PDF file path from the response data
+            const pdfPath = generatePDFResponse.data.message;
+            
     
-            // Ensure that there is at least one PDF file URL in the response
-            if (pdfFileUrls.length > 0) {
-                // Get the first PDF file URL (assuming there's only one PDF generated)
-                const pdfFileUrl = pdfFileUrls[0];
+            // Now you can use pdfPath to download the PDF or perform any other operation
     
-                // Create a link element
-                const link = document.createElement('a');
-                link.href = pdfFileUrl;
-                link.setAttribute('download', 'generated_pdf.pdf'); // Set the filename for the download
+            // For example, if you want to download the PDF using the browser
+            window.open(pdfPath, '_blank');
     
-                // Append the link to the document body and trigger the download
-                document.body.appendChild(link);
-                link.click();
-    
-                // Cleanup: remove the link
-                document.body.removeChild(link);
-    
-                // Show confirmation message
-                alert("PDF generated and downloaded successfully!");
-    
-                // Redirect to Home after successful download
-                navigate('/Home');
-            } else {
-                // Handle the case where no PDF file URL is returned
-                alert("No PDF file generated. Please try again later.");
-            }
+            // After downloading, you can navigate to the Home page
+            navigate('/Home');
+            
         } catch (error) {
             console.error("Error:", error);
             alert("Failed to generate or download PDF. Please try again later.");
