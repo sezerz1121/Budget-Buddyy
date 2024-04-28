@@ -145,6 +145,7 @@ app.post("/SignIn", async (req, res) => {
     try {
         const userRefID = req.query._id;
         const pdfPath = await generatePDFExample(userRefID);
+        console.log(pdfpath)
         if(!pdfPath)
         {
            console.log("path not generated"+pdfPath)
@@ -152,6 +153,8 @@ app.post("/SignIn", async (req, res) => {
 
         // Upload the PDF to Cloudinary if needed
          const pdf = await uploadOnCloudinary(pdfPath);
+
+        console.log(pdf)
          if(!pdf)
         {
            console.log("pdf not generated"+pdf.secure_url)
