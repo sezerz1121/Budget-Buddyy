@@ -90,7 +90,7 @@ const handle_pdf = async () => {
               return;
             }
       
-            const response = await axios.get("https://budget-buddyy.vercel.app/profile", {
+            const response = await axios.get("https://budget-buddyy-1.onrender.com/profile", {
               headers: {
                 Authorization: `Bearer ${token}`,
               },
@@ -115,7 +115,7 @@ const handle_pdf = async () => {
             return;
           }
     
-          const response = await axios.get("https://budget-buddyy.vercel.app/Budgetcards", {
+          const response = await axios.get("https://budget-buddyy-1.onrender.com/Budgetcards", {
             headers: {
               Authorization: `Bearer ${token}`,
             },
