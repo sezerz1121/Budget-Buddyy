@@ -46,7 +46,7 @@ function Analitics() {
       };
 const handle_pdf = async () => {
         try {
-            const generatePDFResponse = await axios.get("https://backend-buddyy.onrender.com/generate-pdf", {
+            const generatePDFResponse = await axios.get("https://budget-buddyy-1.onrender.com/generate-pdf", {
                 params: {
                     _id: user._id,
                 },
