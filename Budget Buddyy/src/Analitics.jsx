@@ -161,7 +161,7 @@ const handle_pdf = async () => {
     <div className='Screen-parent'>
     <div className='Screen'>
     <div className='Title-div'><p className='Title-name'>Budget Buddyy</p></div>
-    <div className='total-price1'>₹-{totalPrice}</div>
+    <div className='total-price1'>₹{totalPrice}</div>
     <div className='Spent-div1'><p className='Spent-name1'>Spent this month</p></div>
     
     <div className='Analitics'>
