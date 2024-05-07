@@ -6,103 +6,110 @@ import { IoMdAdd } from "react-icons/io";
 import BudgetCard from './BudgetCard';
 import Dropdown from './Dropdown';
 function Homepage() {
-    
-    const [user, setUser] = useState(null);
-    const navigate = useNavigate();
-    const [userCards, setUserCards] = useState([]);
-    const [totalToday, setTotalToday] = useState(0);
-     const [isActiveProfile, setIsActiveProfile] = useState(false);
-     const handle_Analitics = () =>
-     {
-      navigate('/Analitics');
-     }
-     const HandleProfile = () => {
-      setIsActiveProfile(!isActiveProfile);
-      
-    }
-    const Handle_logout = () => {
-        
-        localStorage.removeItem('token');
-        
-        navigate('/');
-      };
-    const handle_Add_item =()=>
-    {
-      navigate('/AddItem');
-    }
-    useEffect(() => {
-        const fetchData = async () => {
-          try {
-            const token = localStorage.getItem("token");
-            if (!token) {
-              console.error("Token not found in localStorage");
-              navigate('/');
-              return;
-            }
-      
-            const response = await axios.get("https://budget-buddyy-1.onrender.com/profile", {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            });
-      
-            setUser(response.data);
-            
-          } catch (error) {
-            console.error("Error fetching user profile:", error);
-          }
-        };
-      
-        fetchData();
-        fetchUserCards();
-        
-      }, []);
-      const fetchUserCards = async () => {
-        try {
-          const token = localStorage.getItem("token");
-          if (!token) {
-            console.error("Token not found in localStorage");
-            return;
-          }
-    
-          const response = await axios.get("https://budget-buddyy-1.onrender.com/Budgetcards", {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-    
-          setUserCards(response.data);
-          const today = new Date().toISOString().split('T')[0];
-          const todayCards = response.data.filter(card => card.datetime.startsWith(today));
-          let totalToday = 0;
-          todayCards.forEach(card => {
-            totalToday += card.price;
-    });
-    setTotalToday(totalToday);
-          
-        } catch (error) {
-          console.error("Error fetching user cards:", error);
+ const [user, setUser] = useState(null);
+  const navigate = useNavigate();
+  const [userCards, setUserCards] = useState([]);
+  const [totalToday, setTotalToday] = useState(0);
+  const [totalPrice, setTotalPrice] = useState(0);
+  const [isActiveProfile, setIsActiveProfile] = useState(false);
+
+  const handle_Analitics = () => {
+    navigate('/Analitics');
+  }
+
+  const HandleProfile = () => {
+    setIsActiveProfile(!isActiveProfile);
+  }
+
+  const Handle_logout = () => {
+    localStorage.removeItem('token');
+    navigate('/');
+  };
+
+  const handle_Add_item = () => {
+    navigate('/AddItem');
+  }
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          console.error("Token not found in localStorage");
+          navigate('/');
+          return;
         }
-      };
-      function createCard(card) {
-        // Format the date
-        const formattedDate = new Date(card.datetime).toLocaleString(undefined, {
-          hour: '2-digit',
-          minute: '2-digit'
+
+        const response = await axios.get("https://budget-buddyy-1.onrender.com/profile", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         });
-      
-        return (
-          <BudgetCard
-            key={card._id}
-            emoji={card.emoji}
-            Item={card.item_name} // Assuming the property name is "item_name"
-            Time={formattedDate}
-            price={card.price}
-          />
-        );
+
+        setUser(response.data);
+      } catch (error) {
+        console.error("Error fetching user profile:", error);
       }
-      const totalPrice = userCards.reduce((total, card) => total + card.price, 0);
-      
+    };
+
+    fetchData();
+    fetchUserCards();
+  }, []);
+
+  const fetchUserCards = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        console.error("Token not found in localStorage");
+        return;
+      }
+
+      const response = await axios.get("https://budget-buddyy-1.onrender.com/Budgetcards", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setUserCards(response.data);
+
+      const today = new Date().toISOString().split('T')[0];
+      const thisMonth = new Date().toISOString().split('-').slice(0, 2).join('-');
+      const thisMonthCards = response.data.filter(card => card.datetime.startsWith(thisMonth));
+      let totalThisMonth = 0;
+      thisMonthCards.forEach(card => {
+        totalThisMonth += card.price;
+      });
+      setTotalPrice(totalThisMonth);
+
+      let totalToday = 0;
+      const todayCards = response.data.filter(card => card.datetime.startsWith(today));
+      todayCards.forEach(card => {
+        totalToday += card.price;
+      });
+      setTotalToday(totalToday);
+    } catch (error) {
+      console.error("Error fetching user cards:", error);
+    }
+  };
+
+  function createCard(card) {
+    // Format the date
+    const formattedDate = new Date(card.datetime).toLocaleString(undefined, {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+
+    return (
+      <BudgetCard
+        key={card._id}
+        emoji={card.emoji}
+        Item={card.item_name} // Assuming the property name is "item_name"
+        Time={formattedDate}
+        price={card.price}
+      />
+    );
+  }
+
   return (
     <>
     <div className='Screen-parent'>
