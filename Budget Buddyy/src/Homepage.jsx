@@ -110,7 +110,7 @@ function Homepage() {
     <div className='Title-div'><p className='Title-name'>Budget Buddyy</p></div>
     <div className='Spent-div'><p className='Spent-name'>Spent this month</p></div>
     <div className='total-price'>₹{totalPrice}</div>
-    <div className='Title-item'><div><p className='Spent-item'>Today</p></div><div><p className='Spent-item-price'>₹-{totalToday}</p></div></div>
+    <div className='Title-item'><div><p className='Spent-item'>Today</p></div><div><p className='Spent-item-price'>₹{totalToday}</p></div></div>
     <div className='items' style={{ overflowY: 'auto' }}>
   {userCards.length > 0 ? userCards.slice().reverse().map(createCard) : <p style={{color:"#F2F2F2"}}>No cards available</p>}
 </div>
