@@ -39,6 +39,11 @@ app.use(cors({
   methods: ['GET', 'POST'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }))
+
+app.use((req, res, next) => {
+  res.setHeader("Cross-Origin-Opener-Policy", "unsafe-none");
+  next();
+});
 app.use('/pdf', express.static(path.join(__dirname, 'pdf')));
 
 const secretKey = '123456789';
