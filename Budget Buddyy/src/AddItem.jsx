@@ -28,7 +28,7 @@ function AddItem() {
     }
     const Handle_submit = async () => {
         try {
-            const registerResponse = await axios.post("https://budget-buddyy-2.onrender.com/newbudget", {
+            const registerResponse = await axios.post("https://budget-buddyy-1.onrender.com/newbudget", {
                 ref_id: user._id,
                 price: price,
                 emoji: selectedEmoji,
@@ -73,7 +73,7 @@ function AddItem() {
               return;
             }
       
-            const response = await axios.get("https://budget-buddyy-2.onrender.com/profile", {
+            const response = await axios.get("https://budget-buddyy-1.onrender.com/profile", {
               headers: {
                 Authorization: `Bearer ${token}`,
               },
