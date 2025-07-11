@@ -20,7 +20,7 @@ function Log() {
                     return;
                 }
 
-                const response = await axios.get("https://budget-buddyy-2.onrender.com/home", {
+                const response = await axios.get("https://budget-buddyy-1.onrender.com/home", {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
@@ -42,14 +42,14 @@ function Log() {
         const decoded = jwtDecode(token);
 
         try {
-            const registerResponse = await axios.post("https://budget-buddyy-2.onrender.com/register", {
+            const registerResponse = await axios.post("https://budget-buddyy-1.onrender.com/register", {
                 name: decoded.name,
                 email: decoded.email,
                 picture: decoded.picture,
             });
 
             if (registerResponse.data === "User created successfully") {
-                const signInResponse = await axios.post("https://budget-buddyy-2.onrender.com/signin", {
+                const signInResponse = await axios.post("https://budget-buddyy-1.onrender.com/signin", {
                     name: decoded.name,
                     email: decoded.email,
                 });
@@ -64,7 +64,7 @@ function Log() {
                 }
             } else if (registerResponse.data === "Email already exists") {
                 setStatusEmail("Email already exists");
-                const signInResponse = await axios.post("https://budget-buddyy-2.onrender.com/signin", {
+                const signInResponse = await axios.post("https://budget-buddyy-1.onrender.com/signin", {
                     name: decoded.name,
                     email: decoded.email,
                 });
