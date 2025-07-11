@@ -26,7 +26,7 @@ function Analitics() {
           return;
         }
 
-        const response = await axios.get("https://budget-buddyy-1.onrender.com/profile", {
+        const response = await axios.get("https://budget-buddyy-2.onrender.com/profile", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -51,7 +51,7 @@ function Analitics() {
         return;
       }
 
-      const response = await axios.get("https://budget-buddyy-1.onrender.com/Budgetcards", {
+      const response = await axios.get("https://budget-buddyy-2.onrender.com/Budgetcards", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -94,7 +94,7 @@ function Analitics() {
 
   const handle_pdf = async () => {
     try {
-      const generatePDFResponse = await axios.get("https://budget-buddyy-1.onrender.com/generate-pdf", {
+      const generatePDFResponse = await axios.get("https://budget-buddyy-2.onrender.com/generate-pdf", {
         params: {
           _id: user._id,
         },
